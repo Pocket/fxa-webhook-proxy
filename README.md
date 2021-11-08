@@ -1,9 +1,6 @@
-# Backend Starter repository
+# FxA Webhook Proxy (aka Firefox Accounts Webhook Proxy Service)
 
-This repository can be used as a template to spin up a new service. 
-
-Note: please change all reference to `Acme` to your service name. There are `Todo`s in this repository
-that points to name changes to your new service name, please address them before spinning up the service.
+Receives FxA events as webhook requests and proxies the requests to the User Service through the Client API.
 
 ## Folder structure
 - the infrastructure code is present in `.aws`
