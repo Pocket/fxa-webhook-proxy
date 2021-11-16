@@ -1,9 +1,16 @@
 import { Construct } from 'constructs';
-import { App, DataTerraformRemoteState, RemoteBackend, TerraformStack } from 'cdktf';
+import {
+  App,
+  DataTerraformRemoteState,
+  RemoteBackend,
+  TerraformStack,
+} from 'cdktf';
 import { AwsProvider, DataSources } from '@cdktf/provider-aws';
 import { config } from './config';
 import { PocketPagerDuty } from '@pocket-tools/terraform-modules';
 import { PagerdutyProvider } from '@cdktf/provider-pagerduty';
+import { SqsLambda } from './sqsLambda';
+import { ArchiveProvider } from '@cdktf/provider-archive';
 
 class FxAWebhookProxy extends TerraformStack {
   constructor(scope: Construct, name: string) {
@@ -11,15 +18,20 @@ class FxAWebhookProxy extends TerraformStack {
 
     new AwsProvider(this, 'aws', { region: 'us-east-1' });
     new PagerdutyProvider(this, 'pagerduty_provider', { token: undefined });
+    new ArchiveProvider(this, 'archive-provider');
 
     new RemoteBackend(this, {
       hostname: 'app.terraform.io',
       organization: 'Pocket',
-      workspaces: [{ prefix: `${config.name}-` }]
+      workspaces: [{ prefix: `${config.name}-` }],
     });
 
     const region = new DataSources.DataAwsRegion(this, 'region');
     const caller = new DataSources.DataAwsCallerIdentity(this, 'caller');
+
+    const pagerDuty = this.createPagerDuty();
+
+    new SqsLambda(this, 'proxy-lambda', pagerDuty);
   }
 
   /**
@@ -38,8 +50,8 @@ class FxAWebhookProxy extends TerraformStack {
       {
         organization: 'Pocket',
         workspaces: {
-          name: 'incident-management'
-        }
+          name: 'incident-management',
+        },
       }
     );
 
@@ -51,8 +63,8 @@ class FxAWebhookProxy extends TerraformStack {
         ),
         nonCriticalEscalationPolicyId: incidentManagement.get(
           'policy_backend_non_critical_id'
-        )
-      }
+        ),
+      },
     });
   }
 }
