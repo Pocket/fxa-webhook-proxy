@@ -21,7 +21,7 @@ export async function validate(headerToken: string): Promise<object> {
   // Decode the token, require it to come out ok as an object
   const token = jwt.decode(headerToken, { complete: true });
   if (!token || typeof token === 'string') {
-    throw Error('Invalid token type');
+    throw Error(`Invalid token type: ${typeof token}`);
   }
 
   // Get the public jwks from FxA
@@ -29,7 +29,9 @@ export async function validate(headerToken: string): Promise<object> {
   try {
     publicJwks = await getPublicJwks(token);
   } catch (error) {
-    throw Error(`Unable to fetch public jwks from ${token.iss}`);
+    throw Error(
+      `Unable to fetch public jwks from ${token.iss}. Error: ${error.message}`
+    );
   }
 
   // Verify we have a key for this kid, this assumes that you have fetched

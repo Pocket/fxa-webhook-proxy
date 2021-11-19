@@ -21,7 +21,7 @@ describe('Handler functions', () => {
       });
     });
 
-    it('should format an response in a standard way', () => {
+    it('should format an unsuccessful response in a standard way', () => {
       const statusCode = 400;
       const actual = formatResponse(statusCode, 'Bad request', true);
       expect(actual).to.deep.equal({
@@ -117,7 +117,7 @@ describe('Handler functions', () => {
       expect(actual).to.equal(`Successfully sent 1 out of 1 events to SQS.`);
     });
 
-    it('should create a successful response message with failed event info ', () => {
+    it('should create a successful response message with failed event info', () => {
       const actual = createSuccessResponseMessage(2, 1);
       expect(actual).to.equal(
         `Successfully sent 1 out of 2 events to SQS. Review cloudwatch and sentry logs for information about failed events.`
