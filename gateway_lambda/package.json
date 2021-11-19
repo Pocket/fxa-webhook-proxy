@@ -1,0 +1,19 @@
+{
+  "name": "fxa-webhook-proxy-gateway_lambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf dist && tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.41.0",
+    "@sentry/serverless": "^6.15.0",
+    "jsonwebtoken": "^8.5.1",
+    "jwk-to-pem": "^2.0.5",
+    "node-fetch": "^2.6.6"
+  }
+}
