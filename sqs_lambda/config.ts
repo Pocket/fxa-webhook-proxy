@@ -1,4 +1,5 @@
 const config = {
+  name: 'Sqs-FxA-Events-Lambda',
   environment: process.env.ENVIRONMENT || 'development',
   sentry: {
     // these values are inserted into the environment in

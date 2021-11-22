@@ -4,6 +4,7 @@ const environment = process.env.ENVIRONMENT || 'development';
 
 const config = {
   environment,
+  name: 'ApiGateway-FxA-Events-Lambda',
   sentry: {
     dsn: process.env.SENTRY_DSN || '',
     release: process.env.GIT_SHA || '',

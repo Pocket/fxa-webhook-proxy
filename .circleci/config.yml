@@ -81,6 +81,18 @@ commands:
             - node_modules
             - .npm
 
+  install_dependencies:
+    description: Install all dependencies for sqs and API gateway lambdas
+    steps:
+      - setup_node:
+          description: Install dev dependencies
+      - setup_node:
+          description: Install dependencies for the API gateway lambda
+          dir: gateway_lambda
+      - setup_node:
+          description: Install dependencies for the SQS lambda
+          dir: sqs_lambda
+
 jobs:
   build_and_deploy:
     description: Builds and Optionaly deploys all the associated lambdas
@@ -112,11 +124,11 @@ jobs:
           password: $DOCKERHUB_PASSWORD
     steps:
       - checkout
+      - install_dependencies
       - run:
           name: Package Lambda
           command: |
             cd << parameters.dir >>
-            npm ci
             npm run build
             cp -r node_modules dist/
             cd dist
@@ -196,14 +208,7 @@ jobs:
          EXTRA_CORS_EXPOSE_HEADERS: ETag
          HOSTNAME_EXTERNAL: localstack
    steps:
-     - setup_node:
-         description: Install dev dependencies
-     - setup_node:
-         description: Install dependencies for the API gateway lambda
-         dir: gateway_lambda
-     - setup_node:
-         description: Install dependencies for the SQS lambda
-         dir: sqs_lambda
+     - install_dependencies
      - run:
          name: Setup test dependencies
          command: ./.circleci/scripts/setup.sh --aws
@@ -223,14 +228,7 @@ jobs:
           AWS_XRAY_LOG_LEVEL: silent
           AWS_XRAY_CONTEXT_MISSING: LOG_ERROR
     steps:
-      - setup_node:
-          description: Install dev dependencies
-      - setup_node:
-          description: Install dependencies for the API gateway lambda
-          dir: gateway_lambda
-      - setup_node:
-          description: Install dependencies for the SQS lambda
-          dir: sqs_lambda
+      - install_dependencies
       - run:
           name: run tests
           command: npm run test-spec
@@ -247,7 +245,8 @@ workflows:
           context: pocket
           name: test_functional
 
-      # Try building the sqs lambda on each branch
+      # SQS lambda deployment
+      # Build the sqs lambda on each branch
       - build_and_deploy:
           <<: *not_dev_main
           context: pocket
@@ -256,7 +255,7 @@ workflows:
           env_lower_name: prod
           env_capital_name: Prod
 
-      # Build & Deploy Development Lambdas
+      # Build & Deploy SQS lambda on dev branch
       - build_and_deploy:
           <<: *only_dev
           context: pocket
@@ -268,12 +267,46 @@ workflows:
           env_capital_name: Dev
           deploy: true
 
-      # Build & Deploy Production Lambdas
+      # Build & Deploy Sqs lambda in main branch
       - build_and_deploy:
           <<: *only_main
           context: pocket
           name: deploy_sqs_lambda_prod
           dir: sqs_lambda
+          codebuild_project_name: FxAWebhookProxy-Prod
+          codebuild_project_branch: main
+          env_lower_name: prod
+          env_capital_name: Prod
+          deploy: true
+
+      # Api Gateway lambda deployment
+      # Build the api gateway lambda on each branch
+      - build_and_deploy:
+          <<: *not_dev_main
+          context: pocket
+          name: build_api_gateway_lambda
+          dir: gateway_lambda
+          env_lower_name: prod
+          env_capital_name: Prod
+
+      # Build & Deploy Api gateway lambda on dev branch
+      - build_and_deploy:
+          <<: *only_dev
+          context: pocket
+          name: deploy_api_gateway_lambda_dev
+          dir: gateway_lambda
+          codebuild_project_name: FxAWebhookProxy-Dev
+          codebuild_project_branch: dev
+          env_lower_name: dev
+          env_capital_name: Dev
+          deploy: true
+
+      # Build & Deploy Api gateway lambda in main branch
+      - build_and_deploy:
+          <<: *only_main
+          context: pocket
+          name: deploy_api_gateway_lambda_prod
+          dir: gateway_lambda
           codebuild_project_name: FxAWebhookProxy-Prod
           codebuild_project_branch: main
           env_lower_name: prod
@@ -312,6 +345,7 @@ workflows:
           workspace-path: /tmp/workspace
           requires:
             - deploy_sqs_lambda_prod
+            - deploy_api_gateway_lambda_prod
 
       # Notify sentry of dev deployment
       - pocket/sentry_release_notification:
@@ -325,3 +359,4 @@ workflows:
           workspace-path: /tmp/workspace
           requires:
             - deploy_sqs_lambda_dev
+            - deploy_api_gateway_lambda_dev
