@@ -28,6 +28,34 @@ export class ApiGateway extends Resource {
         lambda: {
           runtime: LAMBDA_RUNTIMES.NODEJS14,
           handler: 'index.handler',
+          timeout: 120,
+          environment: {
+            SENTRY_DSN: sentryDsn,
+            GIT_SHA: gitSha,
+            ENVIRONMENT:
+              config.environment === 'Prod' ? 'production' : 'development',
+          },
+          vpcConfig: {
+            securityGroupIds: vpc.defaultSecurityGroups.ids,
+            subnetIds: vpc.privateSubnetIds,
+          },
+          codeDeploy: {
+            region: vpc.region,
+            accountId: vpc.accountId,
+          },
+          alarms: {
+            // TODO: set better alarm values
+            /*
+            errors: {
+              evaluationPeriods: 3,
+              period: 3600, // 1 hour
+              threshold: 20,
+              actions: config.isDev
+                ? []
+                : [pagerDuty!.snsNonCriticalAlarmTopic.arn],
+            },
+            */
+          },
         },
       },
     };
