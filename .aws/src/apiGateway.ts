@@ -60,7 +60,7 @@ export class ApiGateway extends Resource {
       },
     };
     const pocketApiGatewayProps: PocketApiGatewayProps = {
-      name: `${config.name}-API-Gateway`,
+      name: `${config.prefix}-API-Gateway`,
       stage: config.environment.toLowerCase(),
       routes: [fxaEventsRoute],
     };
