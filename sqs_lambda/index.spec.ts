@@ -1,10 +1,22 @@
 import * as fx from './index';
 import config from './config';
 import nock from 'nock';
+import sinon from 'sinon';
+import { generateJwt } from './jwt';
+
+function fakeGenerateToken() {
+  return 'fake_token';
+}
 
 describe('SQS Event Handler', () => {
+  let stub;
+  beforeAll(() => {
+    stub = sinon.stub(generateJwt).calls(fakeGenerateToken());
+  });
+
   afterAll(() => {
     nock.restore();
+    stub.reset();
   });
   it('sends a user delete event to client-api', async () => {
     const scope = nock(config.clientApiUri)

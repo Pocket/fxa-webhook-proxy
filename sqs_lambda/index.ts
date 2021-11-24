@@ -1,6 +1,8 @@
 import * as Sentry from '@sentry/serverless';
 import config from './config';
 import fetch from 'node-fetch';
+import { getFxaPrivateKey } from './secretManager';
+import { generateJwt } from './jwt';
 
 // Not DRY -- try lambda layers?
 export enum EVENT {
@@ -28,8 +30,7 @@ mutation deleteUser($id: ID!) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // TODO: INFRA-169
-      // Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${generateJwt(privateKey, id)}`,
     },
     body: JSON.stringify({ query: deleteMutation, variables }),
   }).then((response) => response.json());
@@ -66,4 +67,6 @@ Sentry.AWSLambda.init({
   environment: config.environment,
   serverName: config.name,
 });
+
+const privateKey = getFxaPrivateKey();
 export const handler = Sentry.AWSLambda.wrapHandler(handlerFn);
