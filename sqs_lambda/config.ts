@@ -12,7 +12,7 @@ const config = {
   },
   aws: {
     region: process.env.region || 'us-east-1',
-    keyName: process.env.key || 'FxAWebhookProxy/dev/privateKey',
+    keyName: process.env.key || 'FxAWebhookProxy/Dev/PrivateKey',
   },
   clientApiUri: isDev
     ? process.env.CLIENT_API_URI || 'https://client-api.getpocket.dev'

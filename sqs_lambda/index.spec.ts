@@ -1,23 +1,21 @@
 import * as fx from './index';
 import config from './config';
 import nock from 'nock';
-import sinon from 'sinon';
-import { generateJwt } from './jwt';
-
-function fakeGenerateToken() {
-  return 'fake_token';
-}
+import * as jwt from './jwt';
+import * as secretManager from './secretManager';
 
 describe('SQS Event Handler', () => {
   let stub;
   beforeAll(() => {
-    stub = sinon.stub(generateJwt).calls(fakeGenerateToken());
+    jest.spyOn(secretManager, 'getFxaPrivateKey').mockResolvedValue('fake_key');
+    stub = jest.spyOn(jwt, 'generateJwt').mockReturnValue('fake_token');
   });
 
   afterAll(() => {
     nock.restore();
-    stub.reset();
+    jest.clearAllMocks();
   });
+
   it('sends a user delete event to client-api', async () => {
     const scope = nock(config.clientApiUri)
       .post('/')

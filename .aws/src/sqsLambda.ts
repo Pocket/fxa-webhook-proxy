@@ -35,7 +35,7 @@ export class SqsLambda extends Resource {
         timeout: 120,
         environment: {
           region: vpc.region,
-          keyName: `FxAWebhookProxy/${config.environment}/privateKey`,
+          keyName: `FxAWebhookProxy/${config.environment}/PrivateKey`,
           SENTRY_DSN: sentryDsn,
           GIT_SHA: gitSha,
           ENVIRONMENT:
@@ -49,7 +49,15 @@ export class SqsLambda extends Resource {
           region: vpc.region,
           accountId: vpc.accountId,
         },
-        executionPolicyStatements: [],
+        executionPolicyStatements: [
+          {
+            actions: ['secretsmanager:GetSecretValue', 'kms:Decrypt'],
+            resources: [
+              `arn:aws:secretsmanager:${vpc.region}:${vpc.accountId}:secret:FxAWebhookProxy/${config.environment}`,
+              `arn:aws:secretsmanager:${vpc.region}:${vpc.accountId}:secret:FxAWebhookProxy/${config.environment}/*`,
+            ],
+          },
+        ],
         alarms: {
           // TODO: set better alarm values
           /*

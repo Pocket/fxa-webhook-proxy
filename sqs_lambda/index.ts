@@ -21,6 +21,7 @@ type SqsEvent = {
  * @param id FxA account ID to delete from Pocket's database
  */
 async function submitDeleteMutation(id: string): Promise<any> {
+  const privateKey = await getFxaPrivateKey();
   const deleteMutation = `
 mutation deleteUser($id: ID!) {
   deleteUserByFxaId(id: $id)
@@ -41,7 +42,6 @@ mutation deleteUser($id: ID!) {
  * to make unit-testing easier.
  * Takes records from SQS queue with events, and makes
  * the appropriate request against client-api.
- * TODO: Authorization bearer - INFRA-169
  */
 export async function handlerFn(event: { Records: SqsEvent[] }) {
   await Promise.all(
@@ -68,5 +68,4 @@ Sentry.AWSLambda.init({
   serverName: config.name,
 });
 
-const privateKey = getFxaPrivateKey();
 export const handler = Sentry.AWSLambda.wrapHandler(handlerFn);
