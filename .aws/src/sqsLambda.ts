@@ -7,19 +7,18 @@ import {
   PocketSQSWithLambdaTarget,
   PocketVPC,
 } from '@pocket-tools/terraform-modules';
-import { SSM } from '@cdktf/provider-aws';
+import { getEnvVariableValues } from './utilities';
 
 export class SqsLambda extends Resource {
   constructor(
     scope: Construct,
     private name: string,
+    private vpc: PocketVPC,
     pagerDuty?: PocketPagerDuty
   ) {
     super(scope, name);
 
-    const vpc = new PocketVPC(this, 'pocket-shared-vpc');
-
-    const { sentryDsn, gitSha } = this.getEnvVariableValues();
+    const { sentryDsn, gitSha } = getEnvVariableValues(this);
 
     new PocketSQSWithLambdaTarget(this, 'fxa-events-sqs-lambda', {
       name: `${config.prefix}-Sqs-FxA-Events`,
@@ -64,17 +63,5 @@ export class SqsLambda extends Resource {
       },
       tags: config.tags,
     });
-  }
-
-  private getEnvVariableValues() {
-    const sentryDsn = new SSM.DataAwsSsmParameter(this, 'sentry-dsn', {
-      name: `/${config.name}/${config.environment}/SENTRY_DSN`,
-    });
-
-    const serviceHash = new SSM.DataAwsSsmParameter(this, 'service-hash', {
-      name: `${config.circleCIPrefix}/SERVICE_HASH`,
-    });
-
-    return { sentryDsn: sentryDsn.value, gitSha: serviceHash.value };
   }
 }

@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.4.4"
+  },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.41.0",
     "@sentry/serverless": "^6.15.0",

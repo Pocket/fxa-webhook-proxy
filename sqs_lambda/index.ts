@@ -64,5 +64,6 @@ Sentry.AWSLambda.init({
   dsn: config.sentry.dsn,
   release: config.sentry.release,
   environment: config.environment,
+  serverName: config.name,
 });
 export const handler = Sentry.AWSLambda.wrapHandler(handlerFn);

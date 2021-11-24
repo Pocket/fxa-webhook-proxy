@@ -22,5 +22,5 @@
     "declaration": true
   },
   "exclude": ["node_modules"],
-  "include": ["gateway_lambda/**/*.ts"]
+  "include": ["gateway_lambda/**/*.ts", "sqs_lambda/**/*.ts"]
 }

@@ -2,6 +2,7 @@ const environment = process.env.ENVIRONMENT || 'development';
 const isDev = environment === 'development';
 
 const config = {
+  name: 'Sqs-FxA-Events-Lambda',
   environment: environment,
   sentry: {
     // these values are inserted into the environment in

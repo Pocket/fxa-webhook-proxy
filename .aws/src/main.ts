@@ -7,10 +7,13 @@ import {
 } from 'cdktf';
 import { AwsProvider, DataSources } from '@cdktf/provider-aws';
 import { config } from './config';
-import { PocketPagerDuty } from '@pocket-tools/terraform-modules';
+import { PocketPagerDuty, PocketVPC } from '@pocket-tools/terraform-modules';
 import { PagerdutyProvider } from '@cdktf/provider-pagerduty';
 import { SqsLambda } from './sqsLambda';
 import { ArchiveProvider } from '@cdktf/provider-archive';
+import { NullProvider } from '@cdktf/provider-null';
+import { ApiGateway } from './apiGateway';
+import { LocalProvider } from '@cdktf/provider-local';
 
 class FxAWebhookProxy extends TerraformStack {
   constructor(scope: Construct, name: string) {
@@ -19,6 +22,8 @@ class FxAWebhookProxy extends TerraformStack {
     new AwsProvider(this, 'aws', { region: 'us-east-1' });
     new PagerdutyProvider(this, 'pagerduty_provider', { token: undefined });
     new ArchiveProvider(this, 'archive-provider');
+    new NullProvider(this, 'null-provider');
+    new LocalProvider(this, 'local-provider');
 
     new RemoteBackend(this, {
       hostname: 'app.terraform.io',
@@ -28,10 +33,10 @@ class FxAWebhookProxy extends TerraformStack {
 
     const region = new DataSources.DataAwsRegion(this, 'region');
     const caller = new DataSources.DataAwsCallerIdentity(this, 'caller');
-
+    const vpc = new PocketVPC(this, 'pocket-shared-vpc');
     const pagerDuty = this.createPagerDuty();
-
-    new SqsLambda(this, 'proxy-lambda', pagerDuty);
+    new SqsLambda(this, 'proxy-lambda', vpc, pagerDuty);
+    new ApiGateway(this, 'apigateway-lambda', vpc, pagerDuty);
   }
 
   /**

@@ -13,4 +13,6 @@ export const config = {
     service: name,
     environment,
   },
+  apiGateway: {
+  }
 };
