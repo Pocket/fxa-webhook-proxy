@@ -29,7 +29,7 @@ mutation deleteUser($id: ID!) {
     headers: {
       'Content-Type': 'application/json',
       // TODO: INFRA-169
-      // Authorization: jwt,
+      // Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ query: deleteMutation, variables }),
   }).then((response) => response.json());

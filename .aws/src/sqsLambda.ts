@@ -47,6 +47,7 @@ export class SqsLambda extends Resource {
           region: vpc.region,
           accountId: vpc.accountId,
         },
+        executionPolicyStatements: [],
         alarms: {
           // TODO: set better alarm values
           /*
