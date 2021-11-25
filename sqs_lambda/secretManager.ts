@@ -8,15 +8,16 @@ const client = new SecretsManagerClient({ region: config.aws.region });
 
 //https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-secrets-manager/classes/getsecretvaluecommand.html
 export async function getFxaPrivateKey() {
-  let privateKey;
   try {
-    privateKey = await client.send(
+    const secret = await client.send(
       new GetSecretValueCommand({
         SecretId: config.aws.keyName,
       })
     );
+
+    const privateKey = secret.SecretString as string;
+    return JSON.parse(privateKey);
   } catch (e) {
     throw new Error('unable to fetch private key' + e);
   }
-  return privateKey;
 }
