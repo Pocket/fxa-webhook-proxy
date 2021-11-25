@@ -34,7 +34,7 @@ export class SqsLambda extends Resource {
         handler: 'index.handler',
         timeout: 120,
         environment: {
-          AWS_REGION: vpc.region,
+          REGION: vpc.region,
           JWT_KEY: config.sqsLambda.jwtKey,
           SENTRY_DSN: sentryDsn,
           GIT_SHA: gitSha,

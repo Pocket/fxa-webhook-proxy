@@ -11,7 +11,7 @@ const config = {
     release: process.env.GIT_SHA || '',
   },
   aws: {
-    region: process.env.AWS_REGION || 'us-east-1',
+    region: process.env.REGION || 'us-east-1',
   },
   jwt: {
     key: process.env.JWT_KEY || 'FxAWebhookProxy/Dev/PrivateKey',

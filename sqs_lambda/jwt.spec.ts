@@ -35,7 +35,7 @@ describe('jwt test', function () {
   beforeAll(() => {
     clock = sinon.useFakeTimers({
       now: now,
-      shouldAdvanceTime: true,
+      shouldAdvanceTime: false,
     });
   });
 
