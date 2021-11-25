@@ -1,11 +1,20 @@
 import * as fx from './index';
 import config from './config';
 import nock from 'nock';
+import * as jwt from './jwt';
+import * as secretManager from './secretManager';
 
 describe('SQS Event Handler', () => {
+  beforeAll(() => {
+    jest.spyOn(secretManager, 'getFxaPrivateKey').mockResolvedValue('fake_key');
+    jest.spyOn(jwt, 'generateJwt').mockReturnValue('fake_token');
+  });
+
   afterAll(() => {
     nock.restore();
+    jest.clearAllMocks();
   });
+
   it('sends a user delete event to client-api', async () => {
     const scope = nock(config.clientApiUri)
       .post('/')

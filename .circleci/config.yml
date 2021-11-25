@@ -188,10 +188,9 @@ jobs:
       - run:
           name: Package Lambda
           command: |
-            cd << parameters.dir >>
             npm run build
-            cp -r node_modules dist/
-            cd dist
+            cp -r << parameters.dir >>/node_modules/ ./dist/<< parameters.dir >>/node_modules/
+            cd ./dist/<< parameters.dir >>
             zip -r9 "/tmp/$CIRCLE_SHA1.zip" *
             mkdir -p /tmp
             cp "/tmp/$CIRCLE_SHA1.zip" /tmp/build.zip

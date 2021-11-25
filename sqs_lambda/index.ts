@@ -1,6 +1,8 @@
 import * as Sentry from '@sentry/serverless';
 import config from './config';
 import fetch from 'node-fetch';
+import { getFxaPrivateKey } from './secretManager';
+import { generateJwt } from './jwt';
 
 // Not DRY -- try lambda layers?
 export enum EVENT {
@@ -19,6 +21,7 @@ type SqsEvent = {
  * @param id FxA account ID to delete from Pocket's database
  */
 async function submitDeleteMutation(id: string): Promise<any> {
+  const privateKey = await getFxaPrivateKey();
   const deleteMutation = `
 mutation deleteUser($id: ID!) {
   deleteUserByFxaId(id: $id)
@@ -28,8 +31,7 @@ mutation deleteUser($id: ID!) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // TODO: INFRA-169
-      // Authorization: jwt,
+      Authorization: `Bearer ${generateJwt(privateKey, id)}`,
     },
     body: JSON.stringify({ query: deleteMutation, variables }),
   }).then((response) => response.json());
@@ -40,7 +42,6 @@ mutation deleteUser($id: ID!) {
  * to make unit-testing easier.
  * Takes records from SQS queue with events, and makes
  * the appropriate request against client-api.
- * TODO: Authorization bearer - INFRA-169
  */
 export async function handlerFn(event: { Records: SqsEvent[] }) {
   await Promise.all(
@@ -66,4 +67,5 @@ Sentry.AWSLambda.init({
   environment: config.environment,
   serverName: config.name,
 });
+
 export const handler = Sentry.AWSLambda.wrapHandler(handlerFn);

@@ -13,6 +13,8 @@ export const config = {
     service: name,
     environment,
   },
-  apiGateway: {
-  }
+  apiGateway: {},
+  sqsLambda: {
+    jwtKey: `FxAWebhookProxy/${environment}/PrivateKey`,
+  },
 };
