@@ -11,7 +11,7 @@ export async function getFxaPrivateKey() {
   try {
     const secret = await client.send(
       new GetSecretValueCommand({
-        SecretId: config.aws.keyName,
+        SecretId: config.jwt.key,
       })
     );
 

@@ -11,8 +11,12 @@ const config = {
     release: process.env.GIT_SHA || '',
   },
   aws: {
-    region: process.env.region || 'us-east-1',
-    keyName: process.env.key || 'FxAWebhookProxy/Dev/PrivateKey',
+    region: process.env.AWS_REGION || 'us-east-1',
+  },
+  jwt: {
+    key: process.env.JWT_KEY || 'FxAWebhookProxy/Dev/PrivateKey',
+    iss: process.env.JWT_ISS || 'https://getpocket.com',
+    aud: process.env.JWT_AUD || 'https://client-api.getpocket.com/',
   },
   clientApiUri: isDev
     ? process.env.CLIENT_API_URI || 'https://client-api.getpocket.dev'

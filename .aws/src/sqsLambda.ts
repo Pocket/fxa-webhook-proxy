@@ -34,8 +34,8 @@ export class SqsLambda extends Resource {
         handler: 'index.handler',
         timeout: 120,
         environment: {
-          region: vpc.region,
-          keyName: `FxAWebhookProxy/${config.environment}/PrivateKey`,
+          AWS_REGION: vpc.region,
+          JWT_KEY: config.sqsLambda.jwtKey,
           SENTRY_DSN: sentryDsn,
           GIT_SHA: gitSha,
           ENVIRONMENT:

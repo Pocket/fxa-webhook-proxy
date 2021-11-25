@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import jwkToPem from 'jwk-to-pem';
+import config from './config';
 
 type JwtPayload = {
   iss: string;
@@ -18,8 +19,8 @@ type JwtPayload = {
  */
 export function generateJwt(privateKey, fxaId: string) {
   const payload: JwtPayload = {
-    iss: 'https://getpocket.com',
-    aud: 'https://client-api.getpocket.com/',
+    iss: config.jwt.iss,
+    aud: config.jwt.aud,
     iat: Date.now() / 1000,
     exp: Math.floor(Date.now() / 1000) + 60 * 10, //expires in 10 mins
     sub: fxaId,
