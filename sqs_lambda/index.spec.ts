@@ -5,7 +5,6 @@ import * as jwt from './jwt';
 import * as secretManager from './secretManager';
 
 describe('SQS Event Handler', () => {
-  let stub;
   beforeAll(() => {
     jest.spyOn(secretManager, 'getFxaPrivateKey').mockResolvedValue('fake_key');
     stub = jest.spyOn(jwt, 'generateJwt').mockReturnValue('fake_token');
