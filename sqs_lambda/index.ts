@@ -62,10 +62,10 @@ export async function handlerFn(event: { Records: SqsEvent[] }) {
 }
 
 Sentry.AWSLambda.init({
-  dsn: config.sentry.dsn,
-  release: config.sentry.release,
-  environment: config.environment,
-  serverName: config.name,
+  dsn: config.app.sentry.dsn,
+  release: config.app.sentry.release,
+  environment: config.app.environment,
+  serverName: config.app.name,
 });
 
 export const handler = Sentry.AWSLambda.wrapHandler(handlerFn);
