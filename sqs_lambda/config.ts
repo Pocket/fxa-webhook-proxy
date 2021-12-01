@@ -2,13 +2,16 @@ const environment = process.env.ENVIRONMENT || 'development';
 const isDev = environment === 'development';
 
 const config = {
-  name: 'Sqs-FxA-Events-Lambda',
-  environment: environment,
-  sentry: {
-    // these values are inserted into the environment in
-    // .aws/src/sqsLambda.ts
-    dsn: process.env.SENTRY_DSN || '',
-    release: process.env.GIT_SHA || '',
+  app: {
+    name: 'Sqs-FxA-Events-Lambda',
+    environment: environment,
+    sentry: {
+      // these values are inserted into the environment in
+      // .aws/src/sqsLambda.ts
+      dsn: process.env.SENTRY_DSN || '',
+      release: process.env.GIT_SHA || '',
+    },
+    apiId: process.env.API_ID || '99841',
   },
   aws: {
     region: process.env.REGION || 'us-east-1',

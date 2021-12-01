@@ -10,21 +10,23 @@ type JwtPayload = {
   sub: string;
   apiId?: string;
 };
+
 /**
- * generates jwt token from the given private key
- * @param payload
+ * Generates jwt token from the given private key
  * @param privateKey
  * @param fxaId
  * https://www.npmjs.com/package/jsonwebtoken
  */
 export function generateJwt(privateKey, fxaId: string) {
+  const now = Math.round(Date.now() / 1000);
+
   const payload: JwtPayload = {
     iss: config.jwt.iss,
     aud: config.jwt.aud,
-    iat: Date.now() / 1000,
-    exp: Math.floor(Date.now() / 1000) + 60 * 10, //expires in 10 mins
+    iat: now,
+    exp: now + 60 * 10, //expires in 10 mins
     sub: fxaId,
-    //todo: add apiId
+    apiId: config.app.apiId,
   };
 
   return jwt.sign(payload, jwkToPem(privateKey, { private: true }), {
