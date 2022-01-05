@@ -84,7 +84,8 @@ export async function eventHandler(
   event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
   // Get the authorization header
-  const authHeader = event.headers.authorization;
+  const authHeader =
+    event.headers['Authorization'] ?? event.headers['authorization'];
   if (!authHeader) {
     return formatResponse(400, 'Missing authorization header', true);
   }
