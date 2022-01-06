@@ -1,57 +1,58 @@
 import jwt from 'jsonwebtoken';
-import jwkToPem from 'jwk-to-pem';
+import jwksClient from 'jwks-rsa';
 import fetch from 'node-fetch';
+import { FxaPayload } from './types';
 
-/**
- * Get public JWKs from the auth server
- */
-async function getPublicJwks(token: any): Promise<any[]> {
-  const configUrl = `${token.iss}/.well-known/openid-configuration`;
-  const config = (await (await fetch(configUrl)).json()) as any;
-  const jwks = (await (await fetch(config.jwks_uri)).json()) as any;
-  return jwks.keys;
-}
+export class FxaJwt {
+  public readonly token: jwt.Jwt;
 
-/**
- * Validate the authorization header token
- * Reference: https://mozilla.github.io/ecosystem-platform/docs/process/integration-with-fxa#webhook-events
- * @param headerToken
- */
-export async function validate(headerToken: string): Promise<object> {
-  // Decode the token, require it to come out ok as an object
-  const token = jwt.decode(headerToken, { complete: true });
-  if (!token || typeof token === 'string') {
-    throw Error(`Invalid token type: ${typeof token}`);
+  constructor(public readonly headerToken: string) {
+    // Decode the token, require it to come out ok as an object
+    const decoded: jwt.Jwt | null = jwt.decode(headerToken, {
+      complete: true,
+    });
+    if (!decoded) {
+      throw Error(`Token could not be decoded.`);
+    }
+    this.token = decoded;
+  }
+  /**
+   * Get public JWK from the auth server
+   */
+  public async getPublicJwk() {
+    if (!this.token.payload.iss) {
+      throw new Error('Invalid token: No token issuer.');
+    }
+    if (!this.token.header.kid) {
+      throw new Error('Invalid token: No token kid.');
+    }
+    const configUrl = `${this.token.payload.iss}/.well-known/openid-configuration`;
+    const config = (await (await fetch(configUrl)).json()) as any;
+    const client = jwksClient({ jwksUri: config.jwks_uri });
+    const key = await client.getSigningKey(this.token.header.kid);
+    return key.getPublicKey();
   }
 
-  // Get the public jwks from FxA
-  let publicJwks: any[] = [];
-  try {
-    publicJwks = await getPublicJwks(token);
-  } catch (error) {
-    throw Error(
-      `Unable to fetch public jwks from ${token.iss}. Error: ${error.message}`
-    );
+  /**
+   * Validate the authorization header token
+   * Reference: https://mozilla.github.io/ecosystem-platform/docs/process/integration-with-fxa#webhook-events
+   */
+  public async validate() {
+    const key = await this.getPublicJwk();
+
+    const payload = jwt.verify(this.headerToken, key, {
+      algorithms: ['RS256'],
+    }) as jwt.JwtPayload; // this payload is an object, not a string
+
+    // Verify that the required properties exist in the payload
+    if (
+      !payload.sub ||
+      !payload.events ||
+      !Object.keys(payload.events).length
+    ) {
+      throw Error('Invalid token format: ' + JSON.stringify(payload));
+    }
+    // return the decoded JWT payload
+    return payload as FxaPayload;
   }
-
-  // Verify we have a key for this kid, this assumes that you have fetched
-  // the publicJwks from FxA and put both them in an Array.
-  const jwk = publicJwks.find((j) => j.kid === token.header.kid);
-  if (!jwk) {
-    throw Error('No jwk found for this kid: ' + token.header.kid);
-  }
-  const jwkPem = jwkToPem(jwk);
-
-  // Verify the token is valid
-  const decoded = jwt.verify(headerToken, jwkPem, {
-    algorithms: ['RS256'],
-  });
-
-  // Verify that the required properties exist in the payload
-  if (!decoded.payload.sub || !Object.keys(decoded.payload.events).length) {
-    throw Error('Invalid token format: ' + decoded);
-  }
-
-  // return the decoded JWT
-  return decoded;
 }

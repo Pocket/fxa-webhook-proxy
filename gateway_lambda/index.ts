@@ -1,9 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as Sentry from '@sentry/serverless';
 import config from './config';
-import { validate } from './jwt';
+import { FxaJwt } from './jwt';
 import { sendMessage } from './sqs';
-import { SqsEvent } from './types';
+import { SqsEvent, FxaPayload } from './types';
 
 Sentry.AWSLambda.init({
   dsn: config.sentry.dsn,
@@ -40,9 +40,9 @@ export function formatResponse(
  * Generate the data for the SQS messages
  * @param data
  */
-export function generateEvents(data): SqsEvent[] {
-  const userId = data.payload.sub;
-  const events = data.payload.events;
+export function generateEvents(data: FxaPayload): SqsEvent[] {
+  const userId = data.sub;
+  const events = data.events;
   const allowedEvents = config.fxa.allowedEvents;
 
   return Object.keys(events)
@@ -98,10 +98,10 @@ export async function eventHandler(
   if (authHeaderParts[0] !== 'Bearer') {
     return formatResponse(401, 'Invalid auth type', true);
   }
-  // Decode the authorization header
-  let data;
+  // Decode the authorization header into the webhook event payload
+  let data: FxaPayload;
   try {
-    data = await validate(authHeaderParts[1]);
+    data = await new FxaJwt(authHeaderParts[1]).validate();
   } catch (error) {
     return formatResponse(401, error.message, true);
   }
