@@ -44,6 +44,7 @@ mutation deleteUser($id: ID!) {
  * the appropriate request against client-api.
  */
 export async function handlerFn(event: { Records: SqsEvent[] }) {
+  console.log(`Event: ${JSON.stringify(event)}`);
   await Promise.all(
     event.Records.map(async (record: SqsEvent) => {
       if (record.event === EVENT.USER_DELETE) {
