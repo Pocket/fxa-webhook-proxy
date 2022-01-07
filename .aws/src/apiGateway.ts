@@ -10,12 +10,15 @@ import { config } from './config';
 import { getEnvVariableValues } from './utilities';
 import { Resource } from 'cdktf';
 import { Construct } from 'constructs';
+import { SQS } from '@cdktf/provider-aws';
+import SqsQueue = SQS.SqsQueue;
 
 export class ApiGateway extends Resource {
   constructor(
     scope: Construct,
     private name: string,
     private vpc: PocketVPC,
+    private sqsQueue: SqsQueue,
     pagerDuty?: PocketPagerDuty
   ) {
     super(scope, name);
@@ -26,6 +29,13 @@ export class ApiGateway extends Resource {
       eventHandler: {
         name: `${config.prefix}-ApiGateway-FxA-Events`,
         lambda: {
+          executionPolicyStatements: [
+            {
+              actions: ['sqs:SendMessage', 'sqs:SendMessageBatch'],
+              resources: [sqsQueue.arn],
+              effect: 'Allow',
+            },
+          ],
           runtime: LAMBDA_RUNTIMES.NODEJS14,
           handler: 'index.handler',
           timeout: 120,
@@ -34,6 +44,7 @@ export class ApiGateway extends Resource {
             GIT_SHA: gitSha,
             ENVIRONMENT:
               config.environment === 'Prod' ? 'production' : 'development',
+            SQS_FXA_EVENTS_URL: sqsQueue.url,
           },
           vpcConfig: {
             securityGroupIds: vpc.defaultSecurityGroups.ids,
