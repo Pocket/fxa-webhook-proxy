@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
+    "setup": "npm ci && cd gateway_lambda && npm ci && cd ../sqs_lambda && npm ci && cd ..",
     "build": "rm -rf dist && tsc",
     "test-ci": "npm test",
     "test:watch": "npm test -- --watchAll",

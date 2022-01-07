@@ -5,9 +5,13 @@ import {
   RemoteBackend,
   TerraformStack,
 } from 'cdktf';
-import { AwsProvider, DataSources } from '@cdktf/provider-aws';
+import { AwsProvider } from '@cdktf/provider-aws';
 import { config } from './config';
-import { PocketPagerDuty, PocketVPC } from '@pocket-tools/terraform-modules';
+import {
+  ApplicationSQSQueue,
+  PocketPagerDuty,
+  PocketVPC,
+} from '@pocket-tools/terraform-modules';
 import { PagerdutyProvider } from '@cdktf/provider-pagerduty';
 import { SqsLambda } from './sqsLambda';
 import { ArchiveProvider } from '@cdktf/provider-archive';
@@ -31,12 +35,17 @@ class FxAWebhookProxy extends TerraformStack {
       workspaces: [{ prefix: `${config.name}-` }],
     });
 
-    const region = new DataSources.DataAwsRegion(this, 'region');
-    const caller = new DataSources.DataAwsCallerIdentity(this, 'caller');
     const vpc = new PocketVPC(this, 'pocket-shared-vpc');
     const pagerDuty = this.createPagerDuty();
-    new SqsLambda(this, 'proxy-lambda', vpc, pagerDuty);
-    new ApiGateway(this, 'apigateway-lambda', vpc, pagerDuty);
+
+    const sqs = new ApplicationSQSQueue(this, 'sqs-queue', {
+      name: `${config.prefix}-Queue`,
+      maxReceiveCount: 3,
+      visibilityTimeoutSeconds: 300,
+    });
+
+    new SqsLambda(this, 'proxy-lambda', vpc, sqs.sqsQueue, pagerDuty);
+    new ApiGateway(this, 'apigateway-lambda', vpc, sqs.sqsQueue, pagerDuty);
   }
 
   /**

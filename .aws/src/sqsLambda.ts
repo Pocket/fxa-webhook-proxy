@@ -2,18 +2,22 @@ import { Resource } from 'cdktf';
 import { Construct } from 'constructs';
 import { config } from './config';
 import {
+  ApplicationSQSQueue,
   LAMBDA_RUNTIMES,
   PocketPagerDuty,
   PocketSQSWithLambdaTarget,
   PocketVPC,
 } from '@pocket-tools/terraform-modules';
 import { getEnvVariableValues } from './utilities';
+import { SQS } from '@cdktf/provider-aws';
+import SqsQueue = SQS.SqsQueue;
 
 export class SqsLambda extends Resource {
   constructor(
     scope: Construct,
     private name: string,
     private vpc: PocketVPC,
+    private sqsQueue: SqsQueue,
     pagerDuty?: PocketPagerDuty
   ) {
     super(scope, name);
@@ -25,9 +29,8 @@ export class SqsLambda extends Resource {
       // set batchSize to something reasonable
       batchSize: 25,
       batchWindow: 60,
-      sqsQueue: {
-        maxReceiveCount: 3,
-        visibilityTimeoutSeconds: 300,
+      configFromPreexistingSqsQueue: {
+        name: sqsQueue.name,
       },
       lambda: {
         runtime: LAMBDA_RUNTIMES.NODEJS14,
