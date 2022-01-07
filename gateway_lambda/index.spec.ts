@@ -49,11 +49,9 @@ describe('Handler functions', () => {
 
     it('should generate SQS event data for FxA profile change event', () => {
       const data = {
-        payload: {
-          sub: 'FXA_USER_ID',
-          events: {
-            'https://schemas.accounts.firefox.com/event/profile-change': {},
-          },
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/profile-change': {},
         },
       };
 
@@ -67,11 +65,9 @@ describe('Handler functions', () => {
 
     it('should generate SQS event data for FxA user delete event', () => {
       const data = {
-        payload: {
-          sub: 'FXA_USER_ID',
-          events: {
-            'https://schemas.accounts.firefox.com/event/delete-user': {},
-          },
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/delete-user': {},
         },
       };
 
@@ -85,12 +81,10 @@ describe('Handler functions', () => {
 
     it('should generate SQS event data for multiple FxA events', () => {
       const data = {
-        payload: {
-          sub: 'FXA_USER_ID',
-          events: {
-            'https://schemas.accounts.firefox.com/event/delete-user': {},
-            'https://schemas.accounts.firefox.com/event/profile-change': {},
-          },
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/delete-user': {},
+          'https://schemas.accounts.firefox.com/event/profile-change': {},
         },
       };
 

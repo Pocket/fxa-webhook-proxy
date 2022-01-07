@@ -7,6 +7,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.6",
+    "@types/jwk-to-pem": "^2.0.1",
+    "@types/sinon": "^10.0.6",
+    "sinon": "^12.0.1",
     "typescript": "^4.4.4"
   },
   "dependencies": {
@@ -14,6 +18,7 @@
     "@sentry/serverless": "^6.15.0",
     "jsonwebtoken": "^8.5.1",
     "jwk-to-pem": "^2.0.5",
+    "jwks-rsa": "^2.0.5",
     "node-fetch": "^2.6.6"
   }
 }

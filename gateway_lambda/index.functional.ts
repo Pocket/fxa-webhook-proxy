@@ -1,7 +1,7 @@
+import { FxaJwt } from './jwt';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import * as Sentry from '@sentry/serverless';
-import * as jwt from './jwt';
 import { eventHandler, formatResponse } from './index';
 import config from './config';
 import {
@@ -85,7 +85,6 @@ async function getSqsMessages(): Promise<any[]> {
 describe('API Gateway successful event handler', () => {
   let clock;
   const now = Date.now();
-  let jwtSpy: any;
   let sqsSpy: any;
   let consoleSpy: any;
   let sentrySpy: any;
@@ -103,15 +102,18 @@ describe('API Gateway successful event handler', () => {
     );
 
     // Set up spies 👀
-    jwtSpy = jest.spyOn(jwt, 'validate');
     sqsSpy = jest.spyOn(sqsClient, 'send');
     consoleSpy = jest.spyOn(console, 'log');
     sentrySpy = jest.spyOn(Sentry, 'captureException');
   });
 
-  afterAll(async () => clock.restore());
+  afterAll(async () => {
+    clock.restore();
+  });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('API Gateway bad events', () => {
     it('should return an error if the authorization header is missing', async () => {
@@ -134,36 +136,49 @@ describe('API Gateway successful event handler', () => {
     });
 
     it('should return an error if the authorization token is wrong', async () => {
-      jwtSpy.mockReturnValue(Promise.reject(new Error('bad token')));
       const actual = await eventHandler({
         ...sampleApiGatewayEvent,
         headers: { authorization: 'Bearer noway' },
       });
 
-      expect(actual).to.deep.equal(formatResponse(401, 'bad token', true));
+      expect(actual).to.deep.equal(
+        formatResponse(401, 'Token could not be decoded.', true)
+      );
     });
   });
 
   describe('API Gateway good events', () => {
+    let jwtSpy;
+    beforeEach(() => {
+      jwtSpy = sinon.stub(FxaJwt.prototype, 'validate');
+    });
+    afterEach(() => {
+      jwtSpy.restore();
+    });
     const validEvent = {
       ...sampleApiGatewayEvent,
       headers: {
-        authorization: 'Bearer this-is-it',
+        authorization:
+          'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJGWEFfVVNFUl9JRCIsImV2ZW50cyI6eyJodHRwczovL3NjaGVtYXMuYWN' +
+          'jb3VudHMuZmlyZWZveC5jb20vZXZlbnQvcHJvZmlsZS1jaGFuZ2UiOnt9LCJodHRwczovL3NjaGVtYXMuYWNjb3VudHMuZmlyZWZveC5jb20vZX' +
+          'ZlbnQvZGVsZXRlLXVzZXIiOnt9fSwiaWF0IjoxNjQxNTEwOTA5fQ.n2gqY-u4Sa0zSDGRBtFF7glZQMeW5BeMEDtXPsv_RykdfMqJxF8kn3q9Cm' +
+          '395yXHipskhtZjwiGrjHSlSJaN8fbpHZ_AjWbF66BOYtbRtZy_xiZOOR0ZrZowIgyHpzs1--XZCJWm7GU9q5WSjuIe8Gu_NwfqtZBBMod7ULbt8' +
+          'OtQpy2QEgC0hawICpozSkgIkHki1JVZgDoRuu9Jb0RDsz2C-9pBskpRmxb7wwb4l_PCZ5eAJ70u8b-25P6tEQTZHnJimuJ7pfvZSoAV3UMdIugi' +
+          'vIMysYrgH56QPxi-qxrcaOXQtws3mW2lefe-jH1vp1cSX_wR8WsORRZSwe5HRhPplK01OXQtV_c1Sut3lZf7uNhi13jXUzGnrj4G59fF7F-rce3' +
+          'MeA1mfOlduwiVsinLXDCatiwGU6C9SrZ_qUSlq8t6ctPkPKrpAcK4RcLmxjQ6YARyA4IYkk_KLbLFhn0OkuRWKskaFFRpKV94LUIkBR3B9Tj5Zt' +
+          'D5lUikhpUZkCTG3u7Vl5fLAolaYYFh6iNRS1br279BC7YQwDZhZyQPNWxCYxNYIRtbtbTfMDpZW2kntv9tGItGb7NTRa_uiwTqZ02-_Rzyd-yxw' +
+          'w3HvxB8ORTvXWnGeTJprW5GnpikjSxHVHzMGheuJa0p0UyAQCfsQq9snGJTjA5-EZV1Sn4',
       },
     };
 
     it('should send valid messages to SQS', async () => {
-      jwtSpy.mockReturnValue(
-        Promise.resolve({
-          payload: {
-            sub: 'FXA_USER_ID',
-            events: {
-              'https://schemas.accounts.firefox.com/event/profile-change': {},
-              'https://schemas.accounts.firefox.com/event/delete-user': {},
-            },
-          },
-        })
-      );
+      jwtSpy.resolves({
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/profile-change': {},
+          'https://schemas.accounts.firefox.com/event/delete-user': {},
+        },
+      });
 
       const handlerResponse = await eventHandler(validEvent);
 
@@ -184,17 +199,13 @@ describe('API Gateway successful event handler', () => {
     });
 
     it('should not send messages to SQS if no valid FxA events are found', async () => {
-      jwtSpy.mockReturnValue(
-        Promise.resolve({
-          payload: {
-            sub: 'FXA_USER_ID',
-            events: {
-              'https://schemas.accounts.firefox.com/event/subscription-state-change':
-                {},
-            },
-          },
-        })
-      );
+      jwtSpy.resolves({
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/subscription-state-change':
+            {},
+        },
+      });
 
       const handlerResponse = await eventHandler(validEvent);
 
@@ -207,17 +218,13 @@ describe('API Gateway successful event handler', () => {
     });
 
     it('should send partial events and log failed SQS send to cloudwatch and sentry', async () => {
-      jwtSpy.mockReturnValue(
-        Promise.resolve({
-          payload: {
-            sub: 'FXA_USER_ID',
-            events: {
-              'https://schemas.accounts.firefox.com/event/profile-change': {},
-              'https://schemas.accounts.firefox.com/event/delete-user': {},
-            },
-          },
-        })
-      );
+      jwtSpy.resolves({
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/profile-change': {},
+          'https://schemas.accounts.firefox.com/event/delete-user': {},
+        },
+      });
 
       sqsSpy.mockReturnValueOnce(Promise.reject(new Error('no send')));
 
