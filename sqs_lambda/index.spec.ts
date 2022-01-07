@@ -19,11 +19,19 @@ describe('SQS Event Handler', () => {
     const scope = nock(config.clientApiUri)
       .post('/')
       .reply(200, { data: { deleteUserByFxaId: '12345' } });
-    await fx.handlerFn({
+    const payload = {
       Records: [
-        { user_id: '12345', event: fx.EVENT.USER_DELETE, timestamp: 12345 },
+        {
+          body: JSON.stringify({
+            user_id: '12345',
+            event: fx.EVENT.USER_DELETE,
+            timestamp: 12345,
+          }),
+        },
       ],
-    });
+    };
+    // Casting to any just to not require the unecessary SQS event fields
+    await fx.handlerFn(payload as any);
     // Nock marks as done if a request was successfully intercepted
     expect(scope.isDone()).toBeTruthy();
   });
@@ -37,8 +45,8 @@ describe('SQS Event Handler', () => {
     };
     await expect(async () => {
       await fx.handlerFn({
-        Records: [record],
-      });
+        Records: [{ body: JSON.stringify(record) }],
+      } as any);
     }).rejects.toThrow(
       `Error processing ${JSON.stringify(record)}: \n${JSON.stringify(
         replyData.errors
@@ -46,5 +54,27 @@ describe('SQS Event Handler', () => {
     );
     // Nock marks as done if a request was successfully intercepted
     expect(scope.isDone()).toBeTruthy();
+  });
+  it('throws an error if event is missing', async () => {
+    const record = {
+      user_id: '12345',
+      timestamp: 12345,
+    };
+    await expect(async () => {
+      await fx.handlerFn({
+        Records: [{ body: JSON.stringify(record) }],
+      } as any);
+    }).rejects.toThrow('Malformed event');
+  });
+  it('throws an error if user_id is missing', async () => {
+    const record = {
+      event: '12345',
+      timestamp: 12345,
+    };
+    await expect(async () => {
+      await fx.handlerFn({
+        Records: [{ body: JSON.stringify(record) }],
+      } as any);
+    }).rejects.toThrow('Malformed event');
   });
 });
