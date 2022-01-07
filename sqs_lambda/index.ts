@@ -27,6 +27,7 @@ async function submitDeleteMutation(id: string): Promise<any> {
 mutation deleteUser($id: ID!) {
   deleteUserByFxaId(id: $id)
 }`;
+  console.log(deleteMutation);
   const variables = { id: id };
   return await fetch(config.clientApiUri, {
     method: 'POST',
