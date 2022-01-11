@@ -1,5 +1,5 @@
 import { generateJwt } from './jwt';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import jwkToPem from 'jwk-to-pem';
 import sinon from 'sinon';
 
@@ -44,11 +44,16 @@ describe('jwt test', function () {
   it('should generate jwt from given private key', () => {
     const token = generateJwt(testPrivateKey, '1');
     console.log(token);
-    const result = jwt.verify(token, jwkToPem(testPublicKey));
-    expect(result?.sub).toEqual('1');
-    expect(result[`iss`]).toEqual('https://getpocket.com');
-    expect(result[`aud`]).toEqual('https://client-api.getpocket.com/');
-    expect(result[`iat`]).toEqual(now.getTime() / 1000);
-    expect(result[`exp`]).toEqual(exp.getTime() / 1000);
+    const result = jwt.verify(token, jwkToPem(testPublicKey), {
+      complete: true,
+    }) as jwt.Jwt;
+    const payload = result.payload;
+    expect(payload.sub).toEqual('1');
+    expect(payload.iss).toEqual('https://getpocket.com');
+    expect(payload.aud).toEqual('https://client-api.getpocket.com/');
+    expect(payload.iat).toEqual(now.getTime() / 1000);
+    expect(payload.exp).toEqual(exp.getTime() / 1000);
+    // Required by client-api for disambiguation
+    expect(result.header.kid).toEqual('helloworld');
   });
 });

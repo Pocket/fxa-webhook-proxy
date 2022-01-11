@@ -12,7 +12,7 @@ type JwtPayload = {
 };
 
 /**
- * Generates jwt token from the given private key
+ * Generates jwt token from the given private key.
  * @param privateKey
  * @param fxaId
  * https://www.npmjs.com/package/jsonwebtoken
@@ -31,5 +31,7 @@ export function generateJwt(privateKey, fxaId: string) {
 
   return jwt.sign(payload, jwkToPem(privateKey, { private: true }), {
     algorithm: 'RS256',
+    // Required by client-api to disambiguate from other key(s)
+    keyid: privateKey.kid,
   });
 }
