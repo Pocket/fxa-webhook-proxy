@@ -3,6 +3,7 @@ import config from './config';
 import fetch from 'node-fetch';
 import { getFxaPrivateKey } from './secretManager';
 import { generateJwt } from './jwt';
+import { SQSEvent } from 'aws-lambda';
 
 // Not DRY -- try lambda layers?
 export enum EVENT {
@@ -10,7 +11,7 @@ export enum EVENT {
   PROFILE_UPDATE = 'profile_update',
 }
 
-type SqsEvent = {
+type FxaEvent = {
   user_id: string;
   event: EVENT;
   timestamp: number;
@@ -43,16 +44,22 @@ mutation deleteUser($id: ID!) {
  * Takes records from SQS queue with events, and makes
  * the appropriate request against client-api.
  */
-export async function handlerFn(event: { Records: SqsEvent[] }) {
+export async function handlerFn(event: SQSEvent) {
   await Promise.all(
-    event.Records.map(async (record: SqsEvent) => {
-      if (record.event === EVENT.USER_DELETE) {
-        const res = await submitDeleteMutation(record.user_id);
+    event.Records.map(async (record) => {
+      const fxaEvent = JSON.parse(record.body) as FxaEvent;
+      if (!fxaEvent.event || !fxaEvent.user_id) {
+        throw new Error(
+          `Malformed event - missing either 'event' or 'user_id': \n${JSON.stringify(
+            fxaEvent
+          )}`
+        );
+      }
+      if (fxaEvent.event === EVENT.USER_DELETE) {
+        const res = await submitDeleteMutation(fxaEvent.user_id);
         if (res?.errors) {
           throw new Error(
-            `Error processing ${JSON.stringify(record)}: \n${JSON.stringify(
-              res?.errors
-            )}`
+            `Error processing ${record.body}: \n${JSON.stringify(res?.errors)}`
           );
         }
       }
