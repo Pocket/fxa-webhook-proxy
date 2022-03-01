@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",
     "@types/chai": "^4.3.0",
-    "@types/chai-as-promised": "^7.1.4",
+    "@types/chai-as-promised": "^7.1.5",
     "@types/jest": "^27.4.1",
     "@types/node": "^14.17.20",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
