@@ -74,10 +74,10 @@ class FxAWebhookProxy extends TerraformStack {
       service: {
         criticalEscalationPolicyId: incidentManagement.get(
           'policy_backend_critical_id'
-        ),
+        ).toString(),
         nonCriticalEscalationPolicyId: incidentManagement.get(
           'policy_backend_non_critical_id'
-        ),
+        ).toString(),
       },
     });
   }
