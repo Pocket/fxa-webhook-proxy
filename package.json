@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/Pocket/fxa-webhook-proxy#readme",
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.99",
+    "@types/aws-lambda": "^8.10.100",
     "@types/chai": "^4.3.1",
     "@types/chai-as-promised": "^7.1.5",
     "@types/jest": "^27.5.0",
