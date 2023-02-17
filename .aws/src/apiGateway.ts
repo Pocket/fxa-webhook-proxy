@@ -45,7 +45,7 @@ export class ApiGateway extends Construct {
             SQS_FXA_EVENTS_URL: sqsQueue.url,
           },
           vpcConfig: {
-            securityGroupIds: vpc.defaultSecurityGroups.ids,
+            securityGroupIds: vpc.internalSecurityGroups.ids,
             subnetIds: vpc.privateSubnetIds,
           },
           codeDeploy: {
