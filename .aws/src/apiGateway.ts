@@ -8,12 +8,10 @@ import {
 } from '@pocket-tools/terraform-modules';
 import { config } from './config';
 import { getEnvVariableValues } from './utilities';
-import { Resource } from 'cdktf';
 import { Construct } from 'constructs';
-import { SQS } from '@cdktf/provider-aws';
-import SqsQueue = SQS.SqsQueue;
+import { SqsQueue } from '@cdktf/provider-aws/lib/sqs-queue';
 
-export class ApiGateway extends Resource {
+export class ApiGateway extends Construct {
   constructor(
     scope: Construct,
     private name: string,

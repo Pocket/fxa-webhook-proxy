@@ -1,4 +1,3 @@
-import { Resource } from 'cdktf';
 import { Construct } from 'constructs';
 import { config } from './config';
 import {
@@ -9,10 +8,10 @@ import {
   PocketVPC,
 } from '@pocket-tools/terraform-modules';
 import { getEnvVariableValues } from './utilities';
-import { SQS } from '@cdktf/provider-aws';
-import SqsQueue = SQS.SqsQueue;
+import { SQS } from '@cdktf/provider-aws/lib/SQS';
+import { SqsQueue } from '@cdktf/provider-aws/lib/sqs-queue';
 
-export class SqsLambda extends Resource {
+export class SqsLambda extends Construct {
   constructor(
     scope: Construct,
     private name: string,
@@ -45,7 +44,7 @@ export class SqsLambda extends Resource {
             config.environment === 'Prod' ? 'production' : 'development',
         },
         vpcConfig: {
-          securityGroupIds: vpc.defaultSecurityGroups.ids,
+          securityGroupIds: vpc.internalSecurityGroups.ids,
           subnetIds: vpc.privateSubnetIds,
         },
         codeDeploy: {
