@@ -8,7 +8,6 @@ import {
   PocketVPC,
 } from '@pocket-tools/terraform-modules';
 import { getEnvVariableValues } from './utilities';
-import { SQS } from '@cdktf/provider-aws/lib/SQS';
 import { SqsQueue } from '@cdktf/provider-aws/lib/sqs-queue';
 
 export class SqsLambda extends Construct {
