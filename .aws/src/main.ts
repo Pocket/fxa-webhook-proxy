@@ -5,19 +5,19 @@ import {
   RemoteBackend,
   TerraformStack,
 } from 'cdktf';
-import { AwsProvider } from '@cdktf/provider-aws';
 import { config } from './config';
 import {
   ApplicationSQSQueue,
   PocketPagerDuty,
   PocketVPC,
 } from '@pocket-tools/terraform-modules';
-import { PagerdutyProvider } from '@cdktf/provider-pagerduty';
+import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
+import { PagerdutyProvider } from '@cdktf/provider-pagerduty/lib/provider';
 import { SqsLambda } from './sqsLambda';
-import { ArchiveProvider } from '@cdktf/provider-archive';
-import { NullProvider } from '@cdktf/provider-null';
+import { ArchiveProvider } from '@cdktf/provider-archive/lib/provider';
+import { NullProvider } from '@cdktf/provider-null/lib/provider'
+import { LocalProvider } from '@cdktf/provider-local/lib/provider'
 import { ApiGateway } from './apiGateway';
-import { LocalProvider } from '@cdktf/provider-local';
 
 class FxAWebhookProxy extends TerraformStack {
   constructor(scope: Construct, name: string) {
@@ -74,10 +74,10 @@ class FxAWebhookProxy extends TerraformStack {
       service: {
         criticalEscalationPolicyId: incidentManagement.get(
           'policy_backend_critical_id'
-        ),
+        ).toString(),
         nonCriticalEscalationPolicyId: incidentManagement.get(
           'policy_backend_non_critical_id'
-        ),
+        ).toString(),
       },
     });
   }
