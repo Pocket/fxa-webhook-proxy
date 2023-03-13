@@ -23,13 +23,12 @@ const config = {
   fxa: {
     // Represents a map of FxA event schemas and their corresponding events on Pocket
     // FxA events source: https://github.com/mozilla/fxa/blob/main/packages/fxa-event-broker/README.md
-    // TODO: ADD BACK THE EVENTS AFTER JANUARY 18 2022
-    allowedEvents: {},
-    //   'https://schemas.accounts.firefox.com/event/profile-change':
-    //     EVENT.PROFILE_UPDATE,
-    //   'https://schemas.accounts.firefox.com/event/delete-user':
-    //     EVENT.USER_DELETE,
-    // },
+    allowedEvents: {
+      'https://schemas.accounts.firefox.com/event/profile-change':
+        EVENT.PROFILE_UPDATE,
+      'https://schemas.accounts.firefox.com/event/delete-user':
+        EVENT.USER_DELETE,
+    },
   },
 };
 
