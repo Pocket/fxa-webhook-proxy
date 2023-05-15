@@ -51,6 +51,7 @@ export function generateEvents(data: FxaPayload): SqsEvent[] {
       user_id: userId,
       event: allowedEvents[event],
       timestamp: Math.round(new Date().getTime() / 1000),
+      user_email: events[event].email,
     }));
 }
 
