@@ -1,19 +1,22 @@
 version: '3.1'
 services:
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack@sha256:9e672725b3937f55b69c5c6afe3311d3ac034aab753633ceb2779a1efbba5c7d
     env_file:
       - .docker/local.env
+    environment:
+      LOCALSTACK_HOST: localstack
+      SERVICES: sqs
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - curl --write-out '%{http_code}' --silent --output /dev/null http://localhost:4566/_localstack/health
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
     ports:
       - '4566:4566'
     volumes:
-      - ./.docker/localstack:/docker-entrypoint-initaws.d
-    environment:
-      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
-      - DEBUG=1
-      - SERVICES=sqs
-      - DATA_DIR=/tmp/localstack/data
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - EXTRA_CORS_ALLOWED_HEADERS=Content-Disposition, Content-Type, x-amz-acl
-      - EXTRA_CORS_EXPOSE_HEADERS=ETag
-      - HOSTNAME_EXTERNAL=localstack
+      - ./.docker/localstack:/etc/localstack/init/ready.d

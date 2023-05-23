@@ -16,7 +16,7 @@ const config = {
       fxaEventsQueue: {
         url:
           process.env.SQS_FXA_EVENTS_URL ||
-          'http://localhost:4566/queue/fxa-events-queue',
+          'http://localhost:4566/000000000000/fxa-events-queue',
       },
     },
   },
