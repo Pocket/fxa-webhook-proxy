@@ -65,7 +65,7 @@ async function submitEmailUpdatedMutation(
 ): Promise<any> {
   const privateKey = await getFxaPrivateKey();
 
-  const updateUserEmailMutation = `mutation UpdateUserEmailByFxaId($fxaId: ID!, $email: String!) {updateUserEmailByFxaId(id: $fxaId, email: $email) {
+  const updateUserEmailMutation = `mutation UpdateUserEmailByFxaId($id: ID!, $email: String!) {updateUserEmailByFxaId(id: $id, email: $email) {
     email
   }
 }`;
@@ -78,7 +78,13 @@ async function submitEmailUpdatedMutation(
       Authorization: `Bearer ${generateJwt(privateKey, id)}`,
     },
     body: JSON.stringify({ query: updateUserEmailMutation, variables }),
-  }).then((response) => response.json());
+  })
+    .then((response) => response.json())
+    .catch((error) => {
+      throw new Error(
+        `Error occurred while requesting client-api: \n${JSON.stringify(error)}`
+      );
+    });
 }
 
 /**
