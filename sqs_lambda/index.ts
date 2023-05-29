@@ -78,13 +78,7 @@ async function submitEmailUpdatedMutation(
       Authorization: `Bearer ${generateJwt(privateKey, id)}`,
     },
     body: JSON.stringify({ query: updateUserEmailMutation, variables }),
-  })
-    .then((response) => response.json())
-    .catch((error) => {
-      throw new Error(
-        `Error occurred while requesting client-api: \n${JSON.stringify(error)}`
-      );
-    });
+  }).then((response) => response.json());
 }
 
 /**

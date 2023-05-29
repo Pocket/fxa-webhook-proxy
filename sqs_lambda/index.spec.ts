@@ -61,12 +61,7 @@ describe('SQS Event Handler', () => {
   });
 
   it('throws an error if error data is returned from client-api for profile update event', async () => {
-    // this error is thrown in the submitEmailUpdatedMutation function on the failed client-api fetch request
-    const clientApiRequestError = `Error occurred while requesting client-api: \n${JSON.stringify(
-      'SomeClientApiError'
-    )}`;
-
-    const replyData = { data: null, errors: { clientApiRequestError } };
+    const replyData = { data: null, errors: { CODE: 'BADREQUEST' } };
     const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
     const record = {
       user_id: '12345',
@@ -87,7 +82,7 @@ describe('SQS Event Handler', () => {
     expect(scope.isDone()).toBeTruthy();
   });
 
-  it('throws an error if error data is returned from client-api', async () => {
+  it('throws an error if error data is returned from client-api for user delete event', async () => {
     const replyData = { data: null, errors: { CODE: 'FORBIDDEN' } };
     const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
     const record = {
