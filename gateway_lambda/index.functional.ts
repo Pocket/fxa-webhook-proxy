@@ -198,6 +198,32 @@ describe('API Gateway successful event handler', () => {
       );
     });
 
+    it('should send valid messages to SQS for email change profile updated event', async () => {
+      jwtSpy.resolves({
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/profile-change': {
+            email: 'example@test.com',
+          },
+        },
+      });
+
+      const handlerResponse = await eventHandler(validEvent);
+
+      const messages = await getSqsMessages();
+
+      expect(JSON.parse(messages[0].Body)).to.deep.equal({
+        user_id: 'FXA_USER_ID',
+        event: EVENT.PROFILE_UPDATE,
+        timestamp: Math.round(now / 1000),
+        user_email: 'example@test.com',
+      });
+
+      expect(handlerResponse).to.deep.equal(
+        formatResponse(200, 'Successfully sent 1 out of 1 events to SQS.')
+      );
+    });
+
     it('should not send messages to SQS if no valid FxA events are found', async () => {
       jwtSpy.resolves({
         sub: 'FXA_USER_ID',

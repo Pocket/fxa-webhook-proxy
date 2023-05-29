@@ -60,6 +60,7 @@ describe('Handler functions', () => {
         user_id: 'FXA_USER_ID',
         event: EVENT.PROFILE_UPDATE,
         timestamp: Math.round(now / 1000),
+        user_email: undefined,
       });
     });
 
@@ -76,6 +77,7 @@ describe('Handler functions', () => {
         user_id: 'FXA_USER_ID',
         event: EVENT.USER_DELETE,
         timestamp: Math.round(now / 1000),
+        user_email: undefined,
       });
     });
 
@@ -95,13 +97,37 @@ describe('Handler functions', () => {
           user_id: 'FXA_USER_ID',
           event: EVENT.USER_DELETE,
           timestamp,
+          user_email: undefined,
         },
         {
           user_id: 'FXA_USER_ID',
           event: EVENT.PROFILE_UPDATE,
           timestamp,
+          user_email: undefined,
         },
       ]);
+    });
+
+    it('should generate SQS event data for FxA profile change event for user email update', () => {
+      const data = {
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/profile-change': {
+            email: 'example@test.com',
+          },
+        },
+      };
+
+      const actual: SqsEvent[] = generateEvents(data);
+
+      const fxAEvent: string = Object.keys(data.events)[0];
+
+      expect(actual[0]).to.deep.equal({
+        user_id: 'FXA_USER_ID',
+        event: EVENT.PROFILE_UPDATE,
+        timestamp: Math.round(now / 1000),
+        user_email: data.events[fxAEvent].email,
+      });
     });
   });
 
