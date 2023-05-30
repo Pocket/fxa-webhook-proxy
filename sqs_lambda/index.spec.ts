@@ -35,7 +35,54 @@ describe('SQS Event Handler', () => {
     // Nock marks as done if a request was successfully intercepted
     expect(scope.isDone()).toBeTruthy();
   });
-  it('throws an error if error data is returned from client-api', async () => {
+
+  it('sends a profile update - user email updated event to client-api', async () => {
+    const scope = nock(config.clientApiUri)
+      .post('/')
+      .reply(200, {
+        data: { updateUserEmailByFxaId: 'newEmail@example.com' },
+      });
+    const payload = {
+      Records: [
+        {
+          body: JSON.stringify({
+            user_id: '12345',
+            event: fx.EVENT.PROFILE_UPDATE,
+            timestamp: 12345,
+            user_email: 'newEmail@example.com',
+          }),
+        },
+      ],
+    };
+    // Casting to any just to not require the unecessary SQS event fields
+    await fx.handlerFn(payload as any);
+    // Nock marks as done if a request was successfully intercepted
+    expect(scope.isDone()).toBeTruthy();
+  });
+
+  it('throws an error if error data is returned from client-api for profile update event', async () => {
+    const replyData = { data: null, errors: { CODE: 'BADREQUEST' } };
+    const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
+    const record = {
+      user_id: '12345',
+      event: fx.EVENT.PROFILE_UPDATE,
+      timestamp: 12345,
+      user_email: 'example@test.com',
+    };
+    await expect(async () => {
+      await fx.handlerFn({
+        Records: [{ body: JSON.stringify(record) }],
+      } as any);
+    }).rejects.toThrow(
+      `Error processing ${JSON.stringify(record)}: \n${JSON.stringify(
+        replyData.errors
+      )}`
+    );
+    // Nock marks as done if a request was successfully intercepted
+    expect(scope.isDone()).toBeTruthy();
+  });
+
+  it('throws an error if error data is returned from client-api for user delete event', async () => {
     const replyData = { data: null, errors: { CODE: 'FORBIDDEN' } };
     const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
     const record = {

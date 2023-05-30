@@ -65,7 +65,7 @@ async function submitEmailUpdatedMutation(
 ): Promise<any> {
   const privateKey = await getFxaPrivateKey();
 
-  const updateUserEmailMutation = `mutation UpdateUserEmailByFxaId($fxaId: ID!, $email: String!) {updateUserEmailByFxaId(id: $fxaId, email: $email) {
+  const updateUserEmailMutation = `mutation UpdateUserEmailByFxaId($id: ID!, $email: String!) {updateUserEmailByFxaId(id: $id, email: $email) {
     email
   }
 }`;
