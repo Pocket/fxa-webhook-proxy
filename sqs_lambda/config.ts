@@ -23,7 +23,7 @@ const config = {
   },
   clientApiUri: isDev
     ? process.env.CLIENT_API_URI || 'https://client-api.getpocket.dev'
-    : process.env.CLIENT_API_URI || 'https://client-api.readitlater.com',
+    : process.env.CLIENT_API_URI || 'https://client-api.getpocket.com',
 };
 
 export default config;
