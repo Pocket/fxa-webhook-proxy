@@ -60,6 +60,85 @@ describe('SQS Event Handler', () => {
     expect(scope.isDone()).toBeTruthy();
   });
 
+  it('sends a apple migration event to clientApi', async () => {
+    const scope = nock(config.clientApiUri)
+      .post('/')
+      .reply(200, {
+        data: { migrateAppleUser: 'test-pocket-id' },
+      });
+    const payload = {
+      Records: [
+        {
+          body: JSON.stringify({
+            user_id: '12345',
+            event: fx.EVENT.APPLE_MIGRATION,
+            timestamp: 12345,
+            user_email: 'newEmail@example.com',
+            transfer_sub: 'test-transfer-sub',
+          }),
+        },
+      ],
+    };
+    // Casting to any just to not require the unecessary SQS event fields
+    await fx.handlerFn(payload as any);
+    // Nock marks as done if a request was successfully intercepted
+    expect(scope.isDone()).toBeTruthy();
+  });
+
+  it('throws an error if transfer_sub is missing for apple migration event', async () => {
+    const record = {
+      user_id: '12345',
+      event: fx.EVENT.APPLE_MIGRATION,
+      timestamp: 12345,
+      user_email: 'example@test.com',
+    };
+    await expect(async () => {
+      await fx.handlerFn({
+        Records: [{ body: JSON.stringify(record) }],
+      } as any);
+    }).rejects.toThrow(
+      `Error processing ${JSON.stringify(record)}: missing transfer_sub`
+    );
+  });
+
+  it('throws an error if user_email is missing for apple migration event', async () => {
+    const record = {
+      user_id: '12345',
+      event: fx.EVENT.APPLE_MIGRATION,
+      timestamp: 12345,
+    };
+    await expect(async () => {
+      await fx.handlerFn({
+        Records: [{ body: JSON.stringify(record) }],
+      } as any);
+    }).rejects.toThrow(
+      `Error processing ${JSON.stringify(record)}: missing user_email`
+    );
+  });
+
+  it('throws an error if error data is returned from client-api for apple migration event', async () => {
+    const replyData = { data: null, errors: { CODE: 'BADREQUEST' } };
+    const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
+    const record = {
+      user_id: '12345',
+      event: fx.EVENT.APPLE_MIGRATION,
+      timestamp: 12345,
+      user_email: 'example@test.com',
+      transfer_sub: 'test-transfer-sub',
+    };
+    await expect(async () => {
+      await fx.handlerFn({
+        Records: [{ body: JSON.stringify(record) }],
+      } as any);
+    }).rejects.toThrow(
+      `Error processing ${JSON.stringify(record)}: \n${JSON.stringify(
+        replyData.errors
+      )}`
+    );
+    // Nock marks as done if a request was successfully intercepted
+    expect(scope.isDone()).toBeTruthy();
+  });
+
   it('throws an error if error data is returned from client-api for profile update event', async () => {
     const replyData = { data: null, errors: { CODE: 'BADREQUEST' } };
     const scope = nock(config.clientApiUri).post('/').reply(200, replyData);

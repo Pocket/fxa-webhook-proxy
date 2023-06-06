@@ -28,6 +28,8 @@ const config = {
         EVENT.PROFILE_UPDATE,
       'https://schemas.accounts.firefox.com/event/delete-user':
         EVENT.USER_DELETE,
+      'https://schemas.accounts.firefox.com/event/apple-migration':
+        EVENT.APPLE_MIGRATION,
     },
     // These should not change unless explicitly communicated by the FxA team
     // source: "https://accounts.firefox.com/.well-known/openid-configuration"
