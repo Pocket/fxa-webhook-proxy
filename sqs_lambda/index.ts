@@ -69,18 +69,18 @@ async function migrateAppleUserMutation(
   transferSub: string
 ): Promise<any> {
   const privateKey = await getFxaPrivateKey();
-  const deleteMutation = `
+  const migrateAppleUser = `
 mutation migrateAppleUser($id: ID!, $email: String!, $transferSub: String!) {
   migrateAppleUser(id: $id, email: $email, transferSub: $transferSub)
 }`;
-  const variables = { id: id };
+  const variables = { id: id, email: email, transferSub: transferSub };
   return await fetch(config.clientApiUri, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${generateJwt(privateKey, id)}`,
     },
-    body: JSON.stringify({ query: deleteMutation, variables }),
+    body: JSON.stringify({ query: migrateAppleUser, variables }),
   }).then((response) => response.json());
 }
 

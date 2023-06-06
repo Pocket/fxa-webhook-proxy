@@ -101,6 +101,7 @@ export async function eventHandler(
     return formatResponse(401, 'Invalid auth type', true);
   }
   // Decode the authorization header into the webhook event payload
+
   let data: FxaPayload;
   try {
     data = await new FxaJwt(authHeaderParts[1]).validate();
