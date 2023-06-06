@@ -38,3 +38,24 @@ export type FxaPayload = {
   sub: string;
   events: FxaEvent;
 };
+
+/**
+ * The type below is sourced from: "https://accounts.firefox.com/.well-known/openid-configuration"
+ */
+export type FxaOpenIdConfigPayload = {
+  authorization_endpoint: string;
+  introspection_endpoint: string;
+  issuer: string;
+  jwks_uri: string;
+  revocation_endpoint: string;
+  token_endpoint: string;
+  userinfo_endpoint: string;
+  verify_endpoint: string;
+
+  claims_supported: string[];
+  id_token_signing_alg_values_supported: string[];
+  response_types_supported: string[];
+  scopes_supported: string[];
+  subject_types_supported: string[];
+  token_endpoint_auth_methods_supported: string[];
+};
