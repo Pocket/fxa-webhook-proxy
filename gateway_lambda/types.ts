@@ -1,7 +1,21 @@
 export enum EVENT {
   USER_DELETE = 'user_delete',
   PROFILE_UPDATE = 'profile_update',
+
+  APPLE_MIGRATION = 'apple_migration',
 }
+
+/**
+ * event triggered by fxa for migrating apple users
+ * from pocket sso auth to fxa auth.
+ */
+export type AppleMigrationSqsEvent = {
+  fxa_user_id: string;
+  event: EVENT.APPLE_MIGRATION;
+  user_email: string;
+  transfer_sub: string;
+  timestamp: number;
+};
 
 export type UserDeleteSqsEvent = {
   user_id: string;
@@ -20,7 +34,10 @@ export type ProfileUpdatedSqsEvent = {
   user_email?: string;
 };
 
-export type SqsEvent = UserDeleteSqsEvent | ProfileUpdatedSqsEvent;
+export type SqsEvent =
+  | UserDeleteSqsEvent
+  | ProfileUpdatedSqsEvent
+  | AppleMigrationSqsEvent;
 
 /**
  * FxA Event Payload

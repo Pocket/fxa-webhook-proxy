@@ -190,6 +190,7 @@ describe('API Gateway successful event handler', () => {
           user_id: 'FXA_USER_ID',
           event,
           timestamp: Math.round(now / 1000),
+          transfer_sub: null,
         });
       });
 
@@ -217,6 +218,7 @@ describe('API Gateway successful event handler', () => {
         event: EVENT.PROFILE_UPDATE,
         timestamp: Math.round(now / 1000),
         user_email: 'example@test.com',
+        transfer_sub: null,
       });
 
       expect(handlerResponse).to.deep.equal(
@@ -262,6 +264,7 @@ describe('API Gateway successful event handler', () => {
         user_id: 'FXA_USER_ID',
         event: EVENT.USER_DELETE,
         timestamp: Math.round(now / 1000),
+        transfer_sub: null,
       });
       expect(consoleSpy.mock.calls[0][0]).to.contain('error: no send');
       expect(sentrySpy.mock.calls[0][0].message).to.equal('no send');

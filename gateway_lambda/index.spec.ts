@@ -47,6 +47,32 @@ describe('Handler functions', () => {
 
     afterAll(() => clock.restore());
 
+    it('should generate SQS event data for FxA apple migration event', () => {
+      const testEventPayload = {
+        email: 'test_user@mozilla.com',
+        fxaId: 'FXA_USER_ID',
+        transfer_sub: 'random_guid',
+        changeTime: 1565721242227,
+      };
+      const data = {
+        sub: 'FXA_USER_ID',
+        events: {
+          'https://schemas.accounts.firefox.com/event/apple-migration': {
+            ...testEventPayload,
+          },
+        },
+      };
+
+      const actual: SqsEvent[] = generateEvents(data);
+      expect(actual[0]).to.deep.equal({
+        user_id: testEventPayload.fxaId,
+        event: EVENT.APPLE_MIGRATION,
+        timestamp: Math.round(now / 1000),
+        user_email: testEventPayload.email,
+        transfer_sub: testEventPayload.transfer_sub,
+      });
+    });
+
     it('should generate SQS event data for FxA profile change event', () => {
       const data = {
         sub: 'FXA_USER_ID',
@@ -61,6 +87,7 @@ describe('Handler functions', () => {
         event: EVENT.PROFILE_UPDATE,
         timestamp: Math.round(now / 1000),
         user_email: undefined,
+        transfer_sub: null,
       });
     });
 
@@ -78,6 +105,7 @@ describe('Handler functions', () => {
         event: EVENT.USER_DELETE,
         timestamp: Math.round(now / 1000),
         user_email: undefined,
+        transfer_sub: null,
       });
     });
 
@@ -98,12 +126,14 @@ describe('Handler functions', () => {
           event: EVENT.USER_DELETE,
           timestamp,
           user_email: undefined,
+          transfer_sub: null,
         },
         {
           user_id: 'FXA_USER_ID',
           event: EVENT.PROFILE_UPDATE,
           timestamp,
           user_email: undefined,
+          transfer_sub: null,
         },
       ]);
     });
@@ -127,6 +157,7 @@ describe('Handler functions', () => {
         event: EVENT.PROFILE_UPDATE,
         timestamp: Math.round(now / 1000),
         user_email: data.events[fxAEvent].email,
+        transfer_sub: null,
       });
     });
   });

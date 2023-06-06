@@ -52,6 +52,7 @@ export function generateEvents(data: FxaPayload): SqsEvent[] {
       event: allowedEvents[event],
       timestamp: Math.round(new Date().getTime() / 1000),
       user_email: events[event].email,
+      transfer_sub: events[event].transfer_sub ?? null,
     }));
 }
 
@@ -100,6 +101,7 @@ export async function eventHandler(
     return formatResponse(401, 'Invalid auth type', true);
   }
   // Decode the authorization header into the webhook event payload
+
   let data: FxaPayload;
   try {
     data = await new FxaJwt(authHeaderParts[1]).validate();
