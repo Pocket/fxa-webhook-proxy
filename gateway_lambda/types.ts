@@ -12,7 +12,7 @@ export enum EVENT {
 export type AppleMigrationSqsEvent = {
   fxa_user_id: string;
   event: EVENT.APPLE_MIGRATION;
-  email: string;
+  user_email: string;
   transfer_sub: string;
   timestamp: number;
 };

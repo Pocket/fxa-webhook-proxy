@@ -58,8 +58,10 @@ mutation deleteUser($id: ID!) {
 }
 
 /**
- * Submit deleteUserByFxaId mutation POST request to client-api
+ * Submit migrateAppleUser mutation POST request to client-api
  * @param id FxA account ID to delete from Pocket's database
+ * @param email User email in the Fx event payload
+ * @param transferSub primary ID connecting fxa account and pocket account
  */
 async function migrateAppleUserMutation(
   id: string,
