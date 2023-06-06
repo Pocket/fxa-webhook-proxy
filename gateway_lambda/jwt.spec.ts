@@ -112,7 +112,7 @@ describe('jwt', () => {
         payload: {
           sub: 'plamen',
           events: { crew: 'olympics' },
-          iss: 'test.accounts.google.com', //does not match config.fxa.endpoints.issuer
+          iss: 'test.accounts.google.com', //does not match config.fxa.issuer
         },
       };
 
