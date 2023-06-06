@@ -8,6 +8,8 @@ import { SQSEvent } from 'aws-lambda';
 export enum EVENT {
   USER_DELETE = 'user_delete',
   PROFILE_UPDATE = 'profile_update',
+
+  APPLE_MIGRATION = 'apple_migration',
 }
 
 type FxaEvent = {
@@ -15,6 +17,8 @@ type FxaEvent = {
   event: EVENT;
   timestamp: number;
   user_email?: string;
+
+  transfer_sub?: string;
 };
 
 type EmailUpdatedEvent = Omit<FxaEvent, 'event' | 'user_email'> & {
@@ -41,6 +45,31 @@ async function submitDeleteMutation(id: string): Promise<any> {
   const deleteMutation = `
 mutation deleteUser($id: ID!) {
   deleteUserByFxaId(id: $id)
+}`;
+  const variables = { id: id };
+  return await fetch(config.clientApiUri, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${generateJwt(privateKey, id)}`,
+    },
+    body: JSON.stringify({ query: deleteMutation, variables }),
+  }).then((response) => response.json());
+}
+
+/**
+ * Submit deleteUserByFxaId mutation POST request to client-api
+ * @param id FxA account ID to delete from Pocket's database
+ */
+async function migrateAppleUserMutation(
+  id: string,
+  email: string,
+  transferSub: string
+): Promise<any> {
+  const privateKey = await getFxaPrivateKey();
+  const deleteMutation = `
+mutation migrateAppleUser($id: ID!, $email: String!, $transferSub: String!) {
+  migrateAppleUser(id: $id, email: $email, transferSub: $transferSub)
 }`;
   const variables = { id: id };
   return await fetch(config.clientApiUri, {
@@ -102,6 +131,31 @@ export async function handlerFn(event: SQSEvent) {
 
       if (fxaEvent.event === EVENT.USER_DELETE) {
         const res = await submitDeleteMutation(fxaEvent.user_id);
+        if (res?.errors) {
+          throw new Error(
+            `Error processing ${record.body}: \n${JSON.stringify(res?.errors)}`
+          );
+        }
+      }
+
+      if (fxaEvent.event === EVENT.APPLE_MIGRATION) {
+        if (!fxaEvent.user_email) {
+          throw new Error(
+            `Error processing ${record.body}: missing user_email`
+          );
+        }
+
+        if (!fxaEvent.transfer_sub) {
+          throw new Error(
+            `Error processing ${record.body}: missing transfer_sub`
+          );
+        }
+
+        const res = await migrateAppleUserMutation(
+          fxaEvent.user_id,
+          fxaEvent.user_email,
+          fxaEvent.transfer_sub
+        );
         if (res?.errors) {
           throw new Error(
             `Error processing ${record.body}: \n${JSON.stringify(res?.errors)}`

@@ -87,6 +87,7 @@ describe('Handler functions', () => {
         event: EVENT.PROFILE_UPDATE,
         timestamp: Math.round(now / 1000),
         user_email: undefined,
+        transfer_sub: null,
       });
     });
 
@@ -104,6 +105,7 @@ describe('Handler functions', () => {
         event: EVENT.USER_DELETE,
         timestamp: Math.round(now / 1000),
         user_email: undefined,
+        transfer_sub: null,
       });
     });
 
@@ -124,12 +126,14 @@ describe('Handler functions', () => {
           event: EVENT.USER_DELETE,
           timestamp,
           user_email: undefined,
+          transfer_sub: null,
         },
         {
           user_id: 'FXA_USER_ID',
           event: EVENT.PROFILE_UPDATE,
           timestamp,
           user_email: undefined,
+          transfer_sub: null,
         },
       ]);
     });
@@ -153,6 +157,7 @@ describe('Handler functions', () => {
         event: EVENT.PROFILE_UPDATE,
         timestamp: Math.round(now / 1000),
         user_email: data.events[fxAEvent].email,
+        transfer_sub: null,
       });
     });
   });
