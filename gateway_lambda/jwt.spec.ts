@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import { FxaJwt } from './jwt';
-import sinon from 'sinon';
+import sinon, { SinonStub } from 'sinon';
 
 describe('jwt', () => {
   const publicKey = fs.readFileSync(__dirname + '/test/jwtRS256.key.pub', {
@@ -85,6 +85,21 @@ describe('jwt', () => {
   });
 
   describe('getPublicJwk method', () => {
+    let jwtDecodeStub: SinonStub;
+
+    beforeAll(() => {
+      // stubbing the jwt.decode function in the constructor
+      jwtDecodeStub = sinon.stub(jwt, 'decode');
+    });
+
+    afterEach(() => {
+      jwtDecodeStub.reset();
+    });
+
+    afterAll(() => {
+      jwtDecodeStub.restore();
+    });
+
     it('should throw an error if the token payload does not have the iss property', async () => {
       const invalidTokenPayload = {
         payload: {
@@ -94,17 +109,12 @@ describe('jwt', () => {
         },
       };
 
-      // stubbing the jwt.decode function in the constructor to return the incorrect
-      // token payload object which the class variable 'token' is set to
-      const jwtDecodeStub = sinon
-        .stub(jwt, 'decode')
-        .returns(invalidTokenPayload);
+      // making the stub return the incorrect token payload object which the class variable 'token' is set to
+      jwtDecodeStub.returns(invalidTokenPayload);
 
       await expect(async () => {
         await new FxaJwt('test-token').getPublicJwk();
       }).rejects.toThrow('Invalid token: No token issuer or incorrect issuer.');
-
-      jwtDecodeStub.restore();
     });
 
     it('should throw an error if the token payload iss property does not match the one in config', async () => {
@@ -116,18 +126,12 @@ describe('jwt', () => {
         },
       };
 
-      // stubbing the jwt.decode function in the constructor to return the incorrect
-      // token payload object which the class variable 'token' is set to
-      const jwtDecodeStub = sinon
-        .stub(jwt, 'decode')
-        .returns(invalidTokenPayload);
+      // making the stubbing return the incorrect token payload object which the class variable 'token' is set to
+      jwtDecodeStub.returns(invalidTokenPayload);
 
       await expect(async () => {
-        // instantiate FxaJwt class instance with its 'token' variable set incorrectly
         await new FxaJwt('test-token').getPublicJwk();
       }).rejects.toThrow('Invalid token: No token issuer or incorrect issuer.');
-
-      jwtDecodeStub.restore();
     });
   });
 });
