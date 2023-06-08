@@ -31,6 +31,14 @@ const config = {
       'https://schemas.accounts.firefox.com/event/apple-migration':
         EVENT.APPLE_MIGRATION,
     },
+    // These should not change unless explicitly communicated by the FxA team
+    // source: "https://accounts.firefox.com/.well-known/openid-configuration"
+    issuer: 'https://accounts.firefox.com',
+
+    // This should always be "https://accounts.firefox.com/.well-known/openid-configuration"
+    // unless a different URI is explicitly communicated by the FxA team
+    openIdConfigUrl:
+      'https://accounts.firefox.com/.well-known/openid-configuration',
   },
 };
 
