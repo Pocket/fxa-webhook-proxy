@@ -70,8 +70,8 @@ async function migrateAppleUserMutation(
 ): Promise<any> {
   const privateKey = await getFxaPrivateKey();
   const migrateAppleUser = `
-mutation migrateAppleUser($id: ID!, $email: String!) {
-  migrateAppleUser(id: $id, email: $email)
+mutation migrateAppleUser($fxaId: ID!, $email: String!) {
+  migrateAppleUser(fxaId: $fxaId, email: $email)
 }`;
   const variables = { id: id, email: email };
   return await fetch(config.clientApiUri, {
