@@ -59,8 +59,8 @@ mutation deleteUser($id: ID!) {
 
 /**
  * Submit migrateAppleUser mutation POST request to client-api
- * @param id FxA account ID to delete from Pocket's database
- * @param email User email in the Fx event payload
+ * @param id FxA account ID to update in pocket's database
+ * @param email User email in the Fx event payload and in pocket's database
  * @param transferSub primary ID connecting fxa account and pocket account
  */
 async function migrateAppleUserMutation(
@@ -70,10 +70,10 @@ async function migrateAppleUserMutation(
 ): Promise<any> {
   const privateKey = await getFxaPrivateKey();
   const migrateAppleUser = `
-mutation migrateAppleUser($id: ID!, $email: String!) {
-  migrateAppleUser(id: $id, email: $email)
+mutation migrateAppleUser($fxaId: ID!, $email: String!) {
+  migrateAppleUser(fxaId: $fxaId, email: $email)
 }`;
-  const variables = { id: id, email: email };
+  const variables = { fxaId: id, email: email };
   return await fetch(config.clientApiUri, {
     method: 'POST',
     headers: {
