@@ -51,8 +51,8 @@ export function generateEvents(data: FxaPayload): SqsEvent[] {
       user_id: userId,
       event: allowedEvents[event],
       timestamp: Math.round(new Date().getTime() / 1000),
-      user_email: events[event].email,
-      transfer_sub: events[event].transfer_sub ?? null,
+      user_email: events[event].fxaEmail ?? events[event].email, //first see if we have an FxA email in an apple migration event, then fallback to email
+      transfer_sub: events[event].transferSub ?? null,
     }));
 }
 

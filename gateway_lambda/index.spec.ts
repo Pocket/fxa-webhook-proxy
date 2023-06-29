@@ -49,15 +49,17 @@ describe('Handler functions', () => {
 
     it('should generate SQS event data for FxA apple migration event', () => {
       const testEventPayload = {
-        email: 'test_user@mozilla.com',
-        fxaId: 'FXA_USER_ID',
-        transfer_sub: 'random_guid',
+        fxaEmail: 'test_user@mozilla.com',
+        appleEmail: 'test_user@private.apple.com',
+        uid: 'FXA_USER_ID',
+        transferSub: 'random_guid',
         changeTime: 1565721242227,
+        success: 'true',
       };
       const data = {
         sub: 'FXA_USER_ID',
         events: {
-          'https://schemas.accounts.firefox.com/event/apple-migration': {
+          'https://schemas.accounts.firefox.com/event/apple-user-migration': {
             ...testEventPayload,
           },
         },
@@ -65,11 +67,11 @@ describe('Handler functions', () => {
 
       const actual: SqsEvent[] = generateEvents(data);
       expect(actual[0]).to.deep.equal({
-        user_id: testEventPayload.fxaId,
+        user_id: testEventPayload.uid,
         event: EVENT.APPLE_MIGRATION,
         timestamp: Math.round(now / 1000),
-        user_email: testEventPayload.email,
-        transfer_sub: testEventPayload.transfer_sub,
+        user_email: testEventPayload.fxaEmail,
+        transfer_sub: testEventPayload.transferSub,
       });
     });
 
