@@ -28,7 +28,7 @@ const config = {
         EVENT.PROFILE_UPDATE,
       'https://schemas.accounts.firefox.com/event/delete-user':
         EVENT.USER_DELETE,
-      'https://schemas.accounts.firefox.com/event/apple-migration':
+      'https://schemas.accounts.firefox.com/event/apple-user-migration':
         EVENT.APPLE_MIGRATION,
     },
     // These should not change unless explicitly communicated by the FxA team
