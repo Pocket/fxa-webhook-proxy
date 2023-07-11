@@ -79,7 +79,7 @@ mutation migrateAppleUser($fxaId: ID!, $email: String!) {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${generateJwt(privateKey, id)}`,
-      transfer_sub: transferSub,
+      transfersub: transferSub,
     },
     body: JSON.stringify({ query: migrateAppleUser, variables }),
   }).then((response) => response.json());
