@@ -73,7 +73,7 @@ async function migrateAppleUserMutation(
 mutation migrateAppleUser($fxaId: ID!, $email: String!) {
   migrateAppleUser(fxaId: $fxaId, email: $email)
 }`;
-  const variables = { id: id, email: email };
+  const variables = { fxaId: id, email: email };
   return await fetch(config.clientApiUri, {
     method: 'POST',
     headers: {
