@@ -41,7 +41,7 @@ class FxAWebhookProxy extends TerraformStack {
     const sqs = new ApplicationSQSQueue(this, 'sqs-queue', {
       name: `${config.prefix}-Queue`,
       maxReceiveCount: 3,
-      visibilityTimeoutSeconds: 60, // 1 message should not take more then 60 seconds to execute on this lambda
+      visibilityTimeoutSeconds: 300,
       messageRetentionSeconds: 604800, // Set retention to 7 days in case we get a lot of events to process.. unlikely, but safer.
     });
 
