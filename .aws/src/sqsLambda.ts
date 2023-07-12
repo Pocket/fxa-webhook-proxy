@@ -25,7 +25,7 @@ export class SqsLambda extends Construct {
     new PocketSQSWithLambdaTarget(this, 'fxa-events-sqs-lambda', {
       name: `${config.prefix}-Sqs-FxA-Events`,
       // set batchSize to something reasonable
-      batchSize: 25,
+      batchSize: 1, // Setting batch size to one so we can control concurreny easily until we get logging and errors a little clearer.
       batchWindow: 60,
       configFromPreexistingSqsQueue: {
         name: sqsQueue.name,
@@ -34,7 +34,6 @@ export class SqsLambda extends Construct {
         runtime: LAMBDA_RUNTIMES.NODEJS14,
         handler: 'index.handler',
         timeout: 120,
-        reservedConcurrencyLimit: 5, // only allow 5 executations at a time in case FxA suddenly sends us a lot of SQS messages
         environment: {
           REGION: vpc.region,
           JWT_KEY: config.sqsLambda.jwtKey,
