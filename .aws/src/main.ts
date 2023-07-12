@@ -15,8 +15,8 @@ import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
 import { PagerdutyProvider } from '@cdktf/provider-pagerduty/lib/provider';
 import { SqsLambda } from './sqsLambda';
 import { ArchiveProvider } from '@cdktf/provider-archive/lib/provider';
-import { NullProvider } from '@cdktf/provider-null/lib/provider'
-import { LocalProvider } from '@cdktf/provider-local/lib/provider'
+import { NullProvider } from '@cdktf/provider-null/lib/provider';
+import { LocalProvider } from '@cdktf/provider-local/lib/provider';
 import { ApiGateway } from './apiGateway';
 
 class FxAWebhookProxy extends TerraformStack {
@@ -42,6 +42,7 @@ class FxAWebhookProxy extends TerraformStack {
       name: `${config.prefix}-Queue`,
       maxReceiveCount: 3,
       visibilityTimeoutSeconds: 300,
+      messageRetentionSeconds: 604800, // Set retention to 7 days in case we get a lot of events to process.. unlikely, but safer.
     });
 
     new SqsLambda(this, 'proxy-lambda', vpc, sqs.sqsQueue, pagerDuty);
@@ -72,12 +73,12 @@ class FxAWebhookProxy extends TerraformStack {
     return new PocketPagerDuty(this, 'pagerduty', {
       prefix: config.prefix,
       service: {
-        criticalEscalationPolicyId: incidentManagement.get(
-          'policy_backend_critical_id'
-        ).toString(),
-        nonCriticalEscalationPolicyId: incidentManagement.get(
-          'policy_backend_non_critical_id'
-        ).toString(),
+        criticalEscalationPolicyId: incidentManagement
+          .get('policy_backend_critical_id')
+          .toString(),
+        nonCriticalEscalationPolicyId: incidentManagement
+          .get('policy_backend_non_critical_id')
+          .toString(),
       },
     });
   }
