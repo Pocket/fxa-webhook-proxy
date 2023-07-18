@@ -10,8 +10,8 @@
     "test:watch": "npm test -- --watchAll",
     "test-spec": "jest \"\\.spec\\.ts\"",
     "test-functional": "jest \"\\.functional\\.ts\" --runInBand",
-    "lint-check": "eslint --fix-dry-run \"src/**/*.ts\"",
-    "lint-fix": "eslint --fix \"src/**/*.ts\""
+    "lint-check": "eslint --fix-dry-run \"gateway_lambda/**/*.ts\" \"sqs_lambda/**/*.ts\"",
+    "lint-fix": "eslint --fix \"gateway_lambda/**/*.ts\" \"sqs_lambda/**/*.ts\""
   },
   "repository": {
     "type": "git",
@@ -24,18 +24,14 @@
   },
   "homepage": "https://github.com/Pocket/fxa-webhook-proxy#readme",
   "devDependencies": {
+    "@pocket-tools/eslint-config": "2.0.0",
     "@types/aws-lambda": "^8.10.119",
     "@types/chai": "^4.3.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/jest": "^27.5.0",
     "@types/node": "^14.17.20",
-    "@typescript-eslint/eslint-plugin": "^5.61.0",
-    "@typescript-eslint/parser": "^5.61.0",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^8.44.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "jest": "^27.5.1",
     "nock": "^13.3.1",
     "nodemon": "^2.0.22",
