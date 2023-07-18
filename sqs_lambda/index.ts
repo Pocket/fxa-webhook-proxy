@@ -135,9 +135,18 @@ export async function handlerFn(event: SQSEvent) {
       if (fxaEvent.event === EVENT.USER_DELETE) {
         const res = await submitDeleteMutation(fxaEvent.user_id);
         if (res?.errors) {
-          throw new Error(
-            `Error processing ${record.body}: \n${JSON.stringify(res?.errors)}`
-          );
+          if (res.errors.CODE && res.errors.CODE == 'NOT_FOUND') {
+            console.info('FxA User not found', {
+              userId: fxaEvent.user_id,
+              event: fxaEvent,
+            });
+          } else {
+            throw new Error(
+              `Error processing ${record.body}: \n${JSON.stringify(
+                res?.errors
+              )}`
+            );
+          }
         }
       }
 
@@ -160,9 +169,18 @@ export async function handlerFn(event: SQSEvent) {
           fxaEvent.transfer_sub
         );
         if (res?.errors) {
-          throw new Error(
-            `Error processing ${record.body}: \n${JSON.stringify(res?.errors)}`
-          );
+          if (res.errors.CODE && res.errors.CODE == 'NOT_FOUND') {
+            console.info('FxA User not found', {
+              userId: fxaEvent.user_id,
+              event: fxaEvent,
+            });
+          } else {
+            throw new Error(
+              `Error processing ${record.body}: \n${JSON.stringify(
+                res?.errors
+              )}`
+            );
+          }
         }
       }
 
@@ -179,9 +197,18 @@ export async function handlerFn(event: SQSEvent) {
         );
 
         if (res?.errors) {
-          throw new Error(
-            `Error processing ${record.body}: \n${JSON.stringify(res?.errors)}`
-          );
+          if (res.errors.CODE && res.errors.CODE == 'NOT_FOUND') {
+            console.info('FxA User not found', {
+              userId: fxaEvent.user_id,
+              event: fxaEvent,
+            });
+          } else {
+            throw new Error(
+              `Error processing ${record.body}: \n${JSON.stringify(
+                res?.errors
+              )}`
+            );
+          }
         }
       }
     })

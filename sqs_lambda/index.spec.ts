@@ -161,6 +161,22 @@ describe('SQS Event Handler', () => {
     expect(scope.isDone()).toBeTruthy();
   });
 
+  it('returns success if a NotFoundError is returned from client-api for profile update event', async () => {
+    const replyData = { data: null, errors: { CODE: 'NOT_FOUND' } };
+    const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
+    const record = {
+      user_id: '12345',
+      event: fx.EVENT.PROFILE_UPDATE,
+      timestamp: 12345,
+      user_email: 'example@test.com',
+    };
+    const res = await fx.handlerFn({
+      Records: [{ body: JSON.stringify(record) }],
+    } as any);
+    expect(res).toStrictEqual({});
+    // Nock marks as done if a request was successfully intercepted
+    expect(scope.isDone()).toBeTruthy();
+  });
   it('throws an error if error data is returned from client-api for user delete event', async () => {
     const replyData = { data: null, errors: { CODE: 'FORBIDDEN' } };
     const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
@@ -178,6 +194,21 @@ describe('SQS Event Handler', () => {
         replyData.errors
       )}`
     );
+    // Nock marks as done if a request was successfully intercepted
+    expect(scope.isDone()).toBeTruthy();
+  });
+  it('returns success if a NotFoundError is returned from client-api for user delete event', async () => {
+    const replyData = { data: null, errors: { CODE: 'NOT_FOUND' } };
+    const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
+    const record = {
+      user_id: '12345',
+      event: fx.EVENT.USER_DELETE,
+      timestamp: 12345,
+    };
+    const res = await fx.handlerFn({
+      Records: [{ body: JSON.stringify(record) }],
+    } as any);
+    expect(res).toStrictEqual({});
     // Nock marks as done if a request was successfully intercepted
     expect(scope.isDone()).toBeTruthy();
   });
