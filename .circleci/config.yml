@@ -105,11 +105,11 @@ jobs:
       codebuild_project_name:
         type: string
         description: The CodeBuild project name
-        default: ""
+        default: ''
       codebuild_project_branch:
         type: string
         description: The git branch to build
-        default: ""
+        default: ''
       deploy:
         type: boolean
         default: false
@@ -153,7 +153,7 @@ jobs:
             fi
       - store_artifacts:
           path: /tmp/build.zip
-          
+
   build_and_deploy_lambda:
     description: build and deploy the app code to the lambda
     parameters:
@@ -215,35 +215,35 @@ jobs:
           path: /tmp/build.zip
 
   test_functional:
-   description: Run functional tests against external services, e.g. Localstack
-   docker:
-     - image: circleci/node:16
-       auth:
-         username: $DOCKERHUB_USERNAME
-         password: $DOCKERHUB_PASSWORD
-       environment:
-         NODE_ENV: test
-         AWS_XRAY_LOG_LEVEL: silent
-         AWS_XRAY_CONTEXT_MISSING: LOG_ERROR
-     - image: localstack/localstack@sha256:9e672725b3937f55b69c5c6afe3311d3ac034aab753633ceb2779a1efbba5c7d
-       auth:
-         username: $DOCKERHUB_USERNAME
-         password: $DOCKERHUB_PASSWORD
-       environment:
-         DEBUG: 1
-         SERVICES: sqs
-         DATA_DIR: /tmp/localstack/data
-         EXTRA_CORS_ALLOWED_HEADERS: Content-Disposition, Content-Type, x-amz-acl
-         EXTRA_CORS_EXPOSE_HEADERS: ETag
-         HOSTNAME_EXTERNAL: localstack
-   steps:
-     - install_dependencies
-     - run:
-         name: Setup test dependencies
-         command: ./.circleci/scripts/setup.sh --aws
-     - run:
-         name: run tests
-         command: npm run test-functional  -- --ci --watchAll=false
+    description: Run functional tests against external services, e.g. Localstack
+    docker:
+      - image: circleci/node:16
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          NODE_ENV: test
+          AWS_XRAY_LOG_LEVEL: silent
+          AWS_XRAY_CONTEXT_MISSING: LOG_ERROR
+      - image: localstack/localstack@sha256:9e672725b3937f55b69c5c6afe3311d3ac034aab753633ceb2779a1efbba5c7d
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          DEBUG: 1
+          SERVICES: sqs
+          DATA_DIR: /tmp/localstack/data
+          EXTRA_CORS_ALLOWED_HEADERS: Content-Disposition, Content-Type, x-amz-acl
+          EXTRA_CORS_EXPOSE_HEADERS: ETag
+          HOSTNAME_EXTERNAL: localstack
+    steps:
+      - install_dependencies
+      - run:
+          name: Setup test dependencies
+          command: ./.circleci/scripts/setup.sh --aws
+      - run:
+          name: run tests
+          command: npm run test-functional  -- --ci --watchAll=false
 
   test_specs:
     description: Run spec tests
@@ -265,6 +265,9 @@ jobs:
 workflows:
   all:
     jobs:
+      - pocket/node_lint_check:
+          <<: *not_main
+
       - test_specs:
           <<: *not_main
           context: pocket
@@ -303,7 +306,6 @@ workflows:
           env_capital_name: Prod
           lambda_lower_name: sqs-fxa-events
           lambda_name: Sqs-FxA-Events
-
 
       # Build & Deploy SQS lambda on dev branch
       - build_and_deploy_lambda:

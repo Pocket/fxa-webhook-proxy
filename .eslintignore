@@ -1,0 +1,3 @@
+node_modules
+gateway_lambda/node_modules
+sqs_lambda/node_modules
