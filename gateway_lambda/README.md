@@ -13,7 +13,7 @@ The following describes the properties of the data format for the SQS messages g
   - required: `true`
 - `event` - The event for the action performed by the user
   - type: String
-  - accepted values: `user_delete`, `profile_update`
+  - accepted values: `apple_migration`, `password_change`, `profile_update`, `user_delete`
   - required: `true`
 - `timestamp` - Unix timestamp for the event
   - type: Integer

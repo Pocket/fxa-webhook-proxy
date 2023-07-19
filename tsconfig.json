@@ -1,25 +1,8 @@
 {
+  "extends": "@pocket-tools/tsconfig",
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "target": "es2019",
-    "module": "commonjs",
-    "lib": [
-      "es2019",
-      "es2020.bigint",
-      "es2020.string",
-      "es2020.symbol.wellknown"
-    ],
     "outDir": "dist",
-    "rootDirs": ["gateway_lambda", "sqs_lambda"],
-    "removeComments": true,
-    "esModuleInterop": true,
-    "noEmitOnError": false,
-    "sourceMap": true,
-    "inlineSources": true,
-    "sourceRoot": "/",
-    "strictNullChecks": true,
-    "declaration": true
+    "rootDirs": ["gateway_lambda", "sqs_lambda"]
   },
   "exclude": ["node_modules"],
   "include": ["gateway_lambda/**/*.ts", "sqs_lambda/**/*.ts"]
