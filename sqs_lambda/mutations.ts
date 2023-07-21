@@ -7,6 +7,13 @@ import { getFxaPrivateKey } from './secretManager';
 import { generateJwt } from './jwt';
 import { FxaEvent } from '.';
 
+// should match the reasons defined in user-api subgraph schema:
+// https://github.com/Pocket/user-api/blob/main/schema.graphql#L69
+enum ExpireUserWebSessionReason {
+  PASSWORD_CHANGED = 'PASSWORD_CHANGED',
+  LOGOUT = 'LOGOUT',
+}
+
 /**
  * If a request to client-api was made, handle any potential errors
  * @param record SQS record
@@ -124,9 +131,15 @@ export async function submitEmailUpdatedMutation(
 export async function passwordChangeMutation(id: string): Promise<any> {
   const privateKey = await getFxaPrivateKey();
 
-  const expireUserWebSessionTokens = `mutation ExpireUserWebSessionTokens($id: ID!) { expireUserWebSessionTokens(id: $id) }`;
+  const expireUserWebSessionByFxaId = `
+    mutation ExpireUserWebSessionByFxaId($id: ID!, $reason: ExpireUserWebSessionReason!) {
+      expireUserWebSessionByFxaId(
+        id: $id,
+        reason: $reason
+      )
+    }`;
 
-  const variables = { id };
+  const variables = { id, reason: ExpireUserWebSessionReason.PASSWORD_CHANGED };
 
   return await fetch(config.clientApiUri, {
     method: 'POST',
@@ -134,6 +147,6 @@ export async function passwordChangeMutation(id: string): Promise<any> {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${generateJwt(privateKey, id)}`,
     },
-    body: JSON.stringify({ query: expireUserWebSessionTokens, variables }),
+    body: JSON.stringify({ query: expireUserWebSessionByFxaId, variables }),
   }).then((response) => response.json());
 }
