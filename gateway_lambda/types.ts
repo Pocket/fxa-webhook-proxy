@@ -1,8 +1,8 @@
 export enum EVENT {
-  USER_DELETE = 'user_delete',
-  PROFILE_UPDATE = 'profile_update',
-
   APPLE_MIGRATION = 'apple_migration',
+  PASSWORD_CHANGE = 'password_change',
+  PROFILE_UPDATE = 'profile_update',
+  USER_DELETE = 'user_delete',
 }
 
 /**
