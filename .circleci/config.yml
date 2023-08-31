@@ -1,9 +1,10 @@
 version: 2.1
 
 orbs:
-  aws-ecs: circleci/aws-ecs@2.0.0
-  aws-cli: circleci/aws-cli@1.2.1
-  pocket: pocket/circleci-orbs@1.2.4
+  aws-ecs: circleci/aws-ecs@4.0.0
+  aws-cli: circleci/aws-cli@4.1.0
+  pocket: pocket/circleci-orbs@2.1.1
+  slack: circleci/slack@4.1
 
 # Workflow shortcuts
 # You can remove unnecessary shortcuts as applicable
@@ -44,6 +45,14 @@ only_dev: &only_dev
     branches:
       only:
         - dev
+
+# Use for notifying failure of step
+slack-fail-post-step: &slack-fail-post-step
+  post-steps:
+    - slack/notify:
+        branch_pattern: main
+        event: fail
+        template: basic_fail_1
 
 commands:
   setup_node:
@@ -120,9 +129,9 @@ jobs:
           password: $DOCKERHUB_PASSWORD
     steps:
       - aws-cli/setup:
-          aws-access-key-id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
-          aws-secret-access-key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
-          aws-region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
+          aws_access_key_id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
+          aws_secret_access_key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
+          region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
       - run:
           name: Setup CodeBuild environment variables
           command: |
@@ -194,9 +203,9 @@ jobs:
             mkdir -p /tmp
             cp "/tmp/$CIRCLE_SHA1.zip" /tmp/build.zip
       - aws-cli/setup:
-          aws-access-key-id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
-          aws-secret-access-key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
-          aws-region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
+          aws_access_key_id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
+          aws_secret_access_key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
+          region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
       - when:
           condition: << parameters.deploy >>
           steps:
@@ -287,7 +296,7 @@ workflows:
           env_capital_name: Dev
 
       - run_code_build:
-          <<: *only_main
+          <<: [*only_main, *slack-fail-post-step]
           context: pocket
           name: run_prod_code_build
           codebuild_project_name: FxAWebhookProxy-Prod
@@ -323,7 +332,7 @@ workflows:
 
       # Build & Deploy Sqs lambda in main branch
       - build_and_deploy_lambda:
-          <<: *only_main
+          <<: [*only_main, *slack-fail-post-step]
           context: pocket
           name: deploy_sqs_lambda_prod
           dir: sqs_lambda
@@ -363,7 +372,7 @@ workflows:
 
       # Build & Deploy Api gateway lambda in main branch
       - build_and_deploy_lambda:
-          <<: *only_main
+          <<: [*only_main, *slack-fail-post-step]
           context: pocket
           name: deploy_api_gateway_lambda_prod
           dir: gateway_lambda
