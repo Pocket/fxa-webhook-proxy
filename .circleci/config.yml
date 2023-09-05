@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  aws-ecs: circleci/aws-ecs@2.0.0
-  aws-cli: circleci/aws-cli@1.2.1
+  aws-ecs: circleci/aws-ecs@4.0.0
+  aws-cli: circleci/aws-cli@4.1.0
   pocket: pocket/circleci-orbs@2.1.1
   slack: circleci/slack@4.1
 
@@ -129,9 +129,9 @@ jobs:
           password: $DOCKERHUB_PASSWORD
     steps:
       - aws-cli/setup:
-          aws-access-key-id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
-          aws-secret-access-key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
-          aws-region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
+          aws_access_key_id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
+          aws_secret_access_key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
+          region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
       - run:
           name: Setup CodeBuild environment variables
           command: |
@@ -203,9 +203,9 @@ jobs:
             mkdir -p /tmp
             cp "/tmp/$CIRCLE_SHA1.zip" /tmp/build.zip
       - aws-cli/setup:
-          aws-access-key-id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
-          aws-secret-access-key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
-          aws-region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
+          aws_access_key_id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
+          aws_secret_access_key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
+          region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
       - when:
           condition: << parameters.deploy >>
           steps:
