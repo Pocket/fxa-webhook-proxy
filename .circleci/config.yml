@@ -129,7 +129,7 @@ jobs:
           password: $DOCKERHUB_PASSWORD
     steps:
       - aws-cli/setup:
-          aws-access-key_id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
+          aws-access-key-id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
           aws-secret-access-key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
           aws-region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
       - run:
