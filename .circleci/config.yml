@@ -203,9 +203,9 @@ jobs:
             mkdir -p /tmp
             cp "/tmp/$CIRCLE_SHA1.zip" /tmp/build.zip
       - aws-cli/setup:
-          aws_access_key_id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
-          aws_secret_access_key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
-          region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
+          aws-access-key-id: << parameters.env_capital_name >>_AWS_ACCESS_KEY
+          aws-secret-access_key: << parameters.env_capital_name >>_AWS_SECRET_ACCESS_KEY
+          aws-region: << parameters.env_capital_name >>_AWS_DEFAULT_REGION
       - when:
           condition: << parameters.deploy >>
           steps:
