@@ -26,7 +26,10 @@ export function handleMutationErrors(
   res?: any
 ) {
   if (res?.errors) {
-    if (res.errors.CODE && res.errors.CODE == 'NOT_FOUND') {
+    const hasNotFoundError = res.errors.filter(
+      (error) => error.extensions?.code === 'NOT_FOUND'
+    );
+    if (hasNotFoundError.length) {
       console.info('FxA User not found', {
         userId: fxaEvent.user_id,
         event: fxaEvent,
