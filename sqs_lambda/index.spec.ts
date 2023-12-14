@@ -150,7 +150,10 @@ describe('SQS Event Handler', () => {
     });
 
     it('throws an error if error data is returned from client-api for apple migration event', async () => {
-      const replyData = { data: null, errors: { CODE: 'BADREQUEST' } };
+      const replyData = {
+        data: null,
+        errors: [{ extensions: { code: 'BADREQUEST' } }],
+      };
       const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
 
       const record = {
@@ -205,7 +208,10 @@ describe('SQS Event Handler', () => {
     });
 
     it('throws an error if error data is returned from client-api when expiring a web session', async () => {
-      const replyData = { data: null, errors: { CODE: 'FORBIDDEN' } };
+      const replyData = {
+        data: null,
+        errors: [{ extensions: { code: 'FORBIDDEN' } }],
+      };
       const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
 
       const record = {
@@ -232,7 +238,10 @@ describe('SQS Event Handler', () => {
     });
 
     it('returns success if a NotFoundError is returned from client-api when expiring a web session', async () => {
-      const replyData = { data: null, errors: { CODE: 'NOT_FOUND' } };
+      const replyData = {
+        data: null,
+        errors: [{ extensions: { code: 'NOT_FOUND' } }],
+      };
       const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
 
       const record = {
@@ -287,7 +296,10 @@ describe('SQS Event Handler', () => {
     });
 
     it('throws an error if error data is returned from client-api for profile update event', async () => {
-      const replyData = { data: null, errors: { CODE: 'BADREQUEST' } };
+      const replyData = {
+        data: null,
+        errors: [{ extensions: { code: 'BADREQUEST' } }],
+      };
       const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
 
       const record = {
@@ -315,7 +327,10 @@ describe('SQS Event Handler', () => {
     });
 
     it('returns success if a NotFoundError is returned from client-api for profile update event', async () => {
-      const replyData = { data: null, errors: { CODE: 'NOT_FOUND' } };
+      const replyData = {
+        data: null,
+        errors: [{ extensions: { code: 'NOT_FOUND' } }],
+      };
       const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
 
       const record = {
@@ -368,7 +383,10 @@ describe('SQS Event Handler', () => {
     });
 
     it('throws an error if error data is returned from client-api for user delete event', async () => {
-      const replyData = { data: null, errors: { CODE: 'FORBIDDEN' } };
+      const replyData = {
+        data: null,
+        errors: [{ extensions: { code: 'FORBIDDEN' } }],
+      };
       const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
 
       const record = {
@@ -395,7 +413,19 @@ describe('SQS Event Handler', () => {
     });
 
     it('returns success if a NotFoundError is returned from client-api for user delete event', async () => {
-      const replyData = { data: null, errors: { CODE: 'NOT_FOUND' } };
+      // Temporarily just fix this test data until we use a typed client
+      // Pulled from a real log
+      const replyData = {
+        data: null,
+        errors: [
+          {
+            message: 'Error - Not Found: FxA user not found',
+            extensions: {
+              code: 'NOT_FOUND',
+            },
+          },
+        ],
+      };
       const scope = nock(config.clientApiUri).post('/').reply(200, replyData);
 
       const record = {
