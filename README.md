@@ -1,5 +1,8 @@
 # FxA Webhook Proxy (aka Firefox Accounts Webhook Proxy Service)
 
+> [!IMPORTANT]  
+> This repo has been moved to [Pocket's Monorepo](https://github.com/Pocket/pocket-monorepo)
+
 Receives FxA events as webhook requests and proxies the requests to the User Service through the Client API.
 
 Service page (internal): [FxA Webhook Proxy](https://getpocket.atlassian.net/wiki/spaces/PE/pages/2587131924/FxA+User+Service+Proxy)
